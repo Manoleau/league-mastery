@@ -1,6 +1,7 @@
 package com.example.leaguemastery
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
@@ -11,7 +12,16 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.example.leaguemastery.controller.LeagueMasteryApi
+import com.example.leaguemastery.controller.RetrofitHelper
 import com.example.leaguemastery.databinding.ActivityMainBinding
+import com.example.leaguemastery.entity.*
+import com.google.gson.Gson
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +35,25 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.appBarMain.toolbar)
+        try {
+            val api = RetrofitHelper.getInstance().create(LeagueMasteryApi::class.java)
+            GlobalScope.launch {
+                val result = api.getChampionByNameIdWithLanguage("Kindred", "fr_FR")
+                if (result != null){
+                    val champion = result.body()
+                    if (champion != null) {
+                        Log.d("Champion : ", "${champion.name}")
+                    }
+
+                }
+                else{
+                    Log.d("Champions : ", "erreur")
+                }
+            }
+        } catch (err:Exception){
+            Log.e("Erreur Champion", err.toString())
+        }
+
 
         binding.appBarMain.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
