@@ -73,16 +73,18 @@ class HomeFragment : Fragment() {
                                 msg_roles += role?.default_name + " "
                             }
                         }
-                        val builder = AlertDialog.Builder(context)
-                        builder.setTitle("Champion ${champ.name}")
-                        builder.setMessage("Nom : ${champ.name}\nTitre : ${champ.title}\nRoles : $msg_roles")
-                        setImages(champ)
-                        FetchImages(champ, this@HomeFragment).start()
-                        builder.setIcon(image_icon_champ)
-                        builder.setPositiveButton("OK") { dialog, _ ->
-                            dialog.dismiss()
+                        Thread{
+                            val builder = AlertDialog.Builder(context)
+                            builder.setTitle("Champion ${champ.name}")
+                            builder.setMessage("Nom : ${champ.name}\nTitre : ${champ.title}\nRoles : $msg_roles")
+                            setImages(champ)
+                            builder.setIcon(image_icon_champ)
+                            builder.setPositiveButton("OK") { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            builder.show()
                         }
-                        builder.show()
+
                     }
                 } else {
                     Toast.makeText(context, "Aucun résultat", Toast.LENGTH_SHORT).show()
