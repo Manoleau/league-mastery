@@ -6,7 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".ui.champion.ChampionFragment">
 
-
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
     <AutoCompleteTextView
         android:id="@+id/champEditText"
         android:layout_width="wrap_content"
@@ -16,9 +25,7 @@
         android:hint="@string/champion_edittext"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="100dp"
-        tools:layout_editor_absoluteY="253dp" />
+        app:layout_constraintTop_toTopOf="parent"/>
     <Button
         android:id="@+id/btn_search_champ"
         android:layout_width="wrap_content"
@@ -38,20 +45,7 @@
         app:layout_constraintTop_toBottomOf="@id/btn_search_champ"
         tools:layout_editor_absoluteX="1dp"
         tools:layout_editor_absoluteY="94dp"
-        android:stretchColumns="*">
-
-        <TableRow
-            android:background="">
-            <TextView
-                android:padding="3dp"
-                android:text="@string/champion_attribut" />
-            <TextView
-                android:padding="3dp"
-                android:text="@string/titre_attribut" />
-            <TextView
-                android:padding="3dp"
-                android:text="@string/roles_attribut" />
-        </TableRow>
+        android:stretchColumns="1">
 
         <TableRow>
             <LinearLayout
@@ -59,8 +53,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                tools:layout_editor_absoluteX="1dp"
-                tools:layout_editor_absoluteY="145dp">
+                android:layout_gravity="center">
+                <ImageView
+                    android:id="@+id/imageViewIconChamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <TextView
+                    android:id="@+id/textViewChamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
             </LinearLayout>
 
             <LinearLayout
@@ -68,29 +70,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                tools:layout_editor_absoluteX="1dp"
-                tools:layout_editor_absoluteY="145dp">
+                android:layout_gravity="center">
+                <TextView
+                    android:id="@+id/textViewTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/colonne_roles"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 tools:layout_editor_absoluteX="1dp"
-                tools:layout_editor_absoluteY="145dp">
+                tools:layout_editor_absoluteY="145dp"
+                android:layout_gravity="center">
             </LinearLayout>
         </TableRow>
 
 
     </TableLayout>
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="60dp"
-        tools:layout_editor_absoluteY="139dp"
-        tools:src="@drawable/defaulticonchampion" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

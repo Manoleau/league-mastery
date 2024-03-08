@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +15,6 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TableLayout
-import android.widget.TableRow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -42,6 +41,7 @@ class ChampionFragment : Fragment() {
     var image_splash_champ: Drawable? = null
     var image_roles: ArrayList<Drawable> = ArrayList()
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -55,11 +55,13 @@ class ChampionFragment : Fragment() {
         val colonneChamp = binding.colonneChamp
         val colonneTitre = binding.colonneTitre
         val colonneRoles = binding.colonneRoles
-
+        colonneChamp.gravity = Gravity.CENTER_HORIZONTAL
+        colonneTitre.gravity = Gravity.CENTER_HORIZONTAL
+        colonneRoles.gravity = Gravity.CENTER_HORIZONTAL
         setAutoCompleteTextView(champEditText)
 
         btn.setOnClickListener{
-            setOnClickSearchChamp(champEditText.text.toString())
+            setOnClickSearchChamp(champEditText.text.toString(), binding)
         }
         return root
     }
@@ -68,7 +70,8 @@ class ChampionFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-    private fun setOnClickSearchChamp(championRechercher:String){
+    private fun setOnClickSearchChamp(championRechercher:String, binding: FragmentChampionBinding){
+        binding.progressBar.visibility = View.VISIBLE
         val call = ApiClient.api.getChampionByNameIdWithLanguage(championRechercher, Language.FR_FR.code)
         call.enqueue(object : Callback<ChampionLanguage> {
             override fun onResponse(call: Call<ChampionLanguage>, response: Response<ChampionLanguage>) {
@@ -77,52 +80,52 @@ class ChampionFragment : Fragment() {
                     if (champ != null) {
                         val handler = Handler(Looper.getMainLooper())
                         image_roles = ArrayList()
-                        val threads = mutableListOf<Thread>()
                         val roles = champ.roles
                         if (roles != null) {
                             for(role in roles){
                                 if(!ImagesDrawable.data.containsKey(role?._id)){
-                                    val thread = Thread{
+                                    Thread{
                                         setImageRole(role?._id, role?.image_icon)
-                                    }
-                                    thread.start()
-                                    threads.add(thread)
+                                    }.start()
 
                                 } else {
                                     ImagesDrawable.data.get(role?._id)?.get("image")?.let { image_roles.add(it) }
                                 }
                             }
-                            for (thread in threads) {
-                                thread.join()
-                            }
                         }
                         handler.post{
+
                             if(!ImagesDrawable.data.containsKey(champ.key.toString())){
                                 ImagesDrawable.data.put(champ.key.toString(), HashMap())
                                 Thread {
                                     setImagesChamp(champ)
                                     handler.post {
+                                        //val builder = getBuilderNewChamp(champ)
+                                        //builder.show()
+                                        setTableRow(champ, binding)
+                                        binding.progressBar.visibility = View.GONE
 
-                                        val builder = getBuilderNewChamp(champ)
-                                        builder.show()
                                     }
                                 }.start()
                             } else {
                                 image_icon_champ = ImagesDrawable.data.get(champ.key.toString())?.get("image_icon")
                                 image_splash_champ = ImagesDrawable.data.get(champ.key.toString())?.get("image_splash")
                                 image_load_screen_champ = ImagesDrawable.data.get(champ.key.toString())?.get("image_load_screen")
-                                val builder = getBuilderNewChamp(champ)
-                                builder.show()
+                                //val builder = getBuilderNewChamp(champ)
+                                //builder.show()
+                                setTableRow(champ, binding)
+                                binding.progressBar.visibility = View.GONE
                             }
                         }
-
                     }
                 } else {
                     Toast.makeText(context, "Aucun résultat", Toast.LENGTH_SHORT).show()
+                    binding.progressBar.visibility = View.GONE
                 }
             }
             override fun onFailure(call: Call<ChampionLanguage>, t: Throwable) {
                 Toast.makeText(context, "Aucun résultat", Toast.LENGTH_SHORT).show()
+                binding.progressBar.visibility = View.GONE
             }
         })
     }
@@ -187,6 +190,7 @@ class ChampionFragment : Fragment() {
                 val imagerole = Drawable.createFromStream(image, "image")
                 if (imagerole != null) {
                     image_roles.add(imagerole)
+                    ImagesDrawable.data.put(id, HashMap())
                     ImagesDrawable.data.get(id)?.put("image", imagerole)
                 }
             } catch (e: Exception) {
@@ -211,24 +215,43 @@ class ChampionFragment : Fragment() {
         }
         return builder
     }
-    fun getTableRow(champ: ChampionLanguage, colonneChamp:LinearLayout, colonneTitre:LinearLayout, colonneRoles:LinearLayout){
-        colonneChamp.removeAllViews()
-        val textViewName = TextView(context).apply {
-            text = champ.name
-            setPadding(3, 3, 3, 3)
-        }
-        val imageView = ImageView(context).apply {
-            setImageResource(image_icon_champ?)
-        }
+    fun setTableRow(champ: ChampionLanguage, binding:FragmentChampionBinding){
+        val colonneRoles = binding.colonneRoles
+        colonneRoles.removeAllViews()
 
-        val attributes = arrayOf("Attribut 1", "Attribut 2", "Attribut 3")
-        for (attribute in attributes) {
-            val textView = TextView(context).apply {
-                text = attribute
+        binding.textViewChamp.text = champ.name
+
+        val imageViewIconChamp = binding.imageViewIconChamp
+        imageViewIconChamp.layoutParams = LinearLayout.LayoutParams(200, 200).apply {
+            gravity = Gravity.CENTER
+        }
+        imageViewIconChamp.scaleType = ImageView.ScaleType.FIT_CENTER
+        imageViewIconChamp.setImageDrawable(image_icon_champ)
+
+        binding.textViewTitle.text = champ.title
+
+        for(role in champ.roles!!){
+            val linearLayout = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL
+                }
+            }
+            val textViewRole = TextView(context).apply {
+                text = role?.default_name
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    gravity = Gravity.CENTER
+                }
                 setPadding(3, 3, 3, 3)
             }
-            tableRow.addView(textView)
-        }
+            val imageViewRole = ImageView(context).apply {
+                scaleType = ImageView.ScaleType.FIT_CENTER
 
+                setImageDrawable(ImagesDrawable.data.get(role?._id)?.get("image"))
+            }
+            linearLayout.addView(imageViewRole)
+            linearLayout.addView(textViewRole)
+            colonneRoles.addView(linearLayout)
+        }
     }
 }
