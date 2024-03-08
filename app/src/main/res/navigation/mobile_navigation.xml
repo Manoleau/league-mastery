@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.leaguemastery.ui.home.HomeFragment"
-        android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        android:name="com.example.leaguemastery.ui.champion.ChampionFragment"
+        android:label="@string/menu_champion"
+        tools:layout="@layout/fragment_champion" />
 
     <fragment
         android:id="@+id/nav_gallery"

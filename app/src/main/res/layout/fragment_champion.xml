@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.champion.ChampionFragment">
+
+
+    <AutoCompleteTextView
+        android:id="@+id/champEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:hint="@string/champion_edittext"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="100dp"
+        tools:layout_editor_absoluteY="253dp" />
+    <Button
+        android:id="@+id/btn_search_champ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/champEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        android:text="@string/chercher_champion_btn"
+        tools:layout_editor_absoluteX="178dp"
+        tools:layout_editor_absoluteY="242dp" />
+
+    <TableLayout
+        android:id="@+id/table_champion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/btn_search_champ"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="94dp"
+        android:stretchColumns="*">
+
+        <TableRow
+            android:background="">
+            <TextView
+                android:padding="3dp"
+                android:text="@string/champion_attribut" />
+            <TextView
+                android:padding="3dp"
+                android:text="@string/titre_attribut" />
+            <TextView
+                android:padding="3dp"
+                android:text="@string/roles_attribut" />
+        </TableRow>
+
+        <TableRow>
+            <LinearLayout
+                android:id="@+id/colonne_champ"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                tools:layout_editor_absoluteX="1dp"
+                tools:layout_editor_absoluteY="145dp">
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/colonne_titre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                tools:layout_editor_absoluteX="1dp"
+                tools:layout_editor_absoluteY="145dp">
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/colonne_roles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                tools:layout_editor_absoluteX="1dp"
+                tools:layout_editor_absoluteY="145dp">
+            </LinearLayout>
+        </TableRow>
+
+
+    </TableLayout>
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="60dp"
+        tools:layout_editor_absoluteY="139dp"
+        tools:src="@drawable/defaulticonchampion" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
