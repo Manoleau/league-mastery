@@ -1,6 +1,7 @@
 package com.example.leaguemastery.ui.champion
 
 import android.R
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -17,6 +18,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.leaguemastery.API.ApiClient
 import com.example.leaguemastery.ImagesDrawable
@@ -30,6 +32,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.InputStream
 import java.net.URL
+import java.util.concurrent.CountDownLatch
 
 class ChampionFragment : Fragment() {
     private var _binding: FragmentChampionBinding? = null
@@ -60,6 +63,7 @@ class ChampionFragment : Fragment() {
         colonneRoles.gravity = Gravity.CENTER_HORIZONTAL
         setAutoCompleteTextView(champEditText)
 
+
         btn.setOnClickListener{
             setOnClickSearchChamp(champEditText.text.toString(), binding)
         }
@@ -70,8 +74,29 @@ class ChampionFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+    private fun setChampions(latchOrigin:CountDownLatch){
+        val latch = CountDownLatch(champions.size)
+
+        for (champion in champions) {
+            Thread {
+                try {
+                    setImagesChamp(champion)
+                } finally {
+                    latch.countDown()
+                    Log.i("Champion", "${champion.name_id} : ${latch.count}")
+
+                }
+            }.start()
+        }
+        Thread {
+            latch.await()
+            latchOrigin.countDown()
+            Log.i("Images", ImagesDrawable.data.toString())
+        }.start()
+    }
     private fun setOnClickSearchChamp(championRechercher:String, binding: FragmentChampionBinding){
         binding.progressBar.visibility = View.VISIBLE
+
         val call = ApiClient.api.getChampionByNameIdWithLanguage(championRechercher, Language.FR_FR.code)
         call.enqueue(object : Callback<ChampionLanguage> {
             override fun onResponse(call: Call<ChampionLanguage>, response: Response<ChampionLanguage>) {
@@ -131,6 +156,8 @@ class ChampionFragment : Fragment() {
     }
     private fun setAutoCompleteTextView(autoCompleteTextView: AutoCompleteTextView){
         val callChampions = ApiClient.api.getChampions()
+        Log.i("Chargement", "Départ")
+
         callChampions.enqueue(object : Callback<List<ChampionDefault>> {
             override fun onResponse(call: Call<List<ChampionDefault>>, response: Response<List<ChampionDefault>>) {
                 if (response.isSuccessful) {
@@ -141,22 +168,36 @@ class ChampionFragment : Fragment() {
                     }
                     val adapter: ArrayAdapter<String>? = context?.let { ArrayAdapter<String>(it, R.layout.simple_list_item_1, championsName) }
                     autoCompleteTextView.setAdapter(adapter)
+                    //val latch = CountDownLatch(1)
+
+                    //Thread{
+                    //    setChampions(latch)
+                    //}.start()
+                    //Thread{
+                    //    latch.await()
+                    //    Log.i("Chargement", "Fini")
+                    // }
+
                 } else {
+                    champions = emptyList()
                     autoCompleteTextView.setAdapter(null)
+                    binding.progressBar.visibility = View.GONE
                 }
             }
 
             override fun onFailure(call: Call<List<ChampionDefault>>, t: Throwable) {
+                champions = emptyList()
                 autoCompleteTextView.setAdapter(null)
+                binding.progressBar.visibility = View.GONE
             }
         })
     }
     fun setImagesChamp(champ: ChampionAbstract?){
         if (champ != null) {
             try {
-                image_icon_champ = null
-                image_load_screen_champ = null
-                image_splash_champ = null
+                var image_icon_champ: Drawable? = null
+                var image_load_screen_champ: Drawable? = null
+                var image_splash_champ: Drawable? = null
                 val image_icon = URL(champ.image_icon).content as InputStream
                 image_icon_champ = Drawable.createFromStream(image_icon, "image_icon")
                 val image_load_screen = URL(champ.image_load_screen).content as InputStream
@@ -165,17 +206,17 @@ class ChampionFragment : Fragment() {
                 image_splash_champ = Drawable.createFromStream(image_splash, "image_splash")
                 if(image_icon_champ != null){
                     ImagesDrawable.data.get(champ.key.toString())?.put("image_icon",
-                        image_icon_champ!!
+                        image_icon_champ
                     )
                 }
                 if(image_splash_champ != null){
                     ImagesDrawable.data.get(champ.key.toString())?.put("image_splash",
-                        image_splash_champ!!
+                        image_splash_champ
                     )
                 }
                 if(image_load_screen_champ != null){
                     ImagesDrawable.data.get(champ.key.toString())?.put("image_load_screen",
-                        image_load_screen_champ!!
+                        image_load_screen_champ
                     )
                 }
             } catch (e: Exception) {
@@ -241,6 +282,9 @@ class ChampionFragment : Fragment() {
                 text = role?.default_name
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                     gravity = Gravity.CENTER
+                }
+                context?.let {
+                    setTextColor(ContextCompat.getColor(it, R.color.black))
                 }
                 setPadding(3, 3, 3, 3)
             }
