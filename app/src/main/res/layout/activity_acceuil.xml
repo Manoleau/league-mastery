@@ -37,8 +37,9 @@
             android:layout_height="match_parent"
             android:text="@string/search_button_text"
             android:background="@drawable/search_button_background"
-            android:textColor="#FFF"
-            android:textAllCaps="false"/>
+            android:textColor="#000000"
+            android:textAllCaps="false"
+            android:fontFamily="@font/league" />
 
     </LinearLayout>
 
@@ -47,6 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="YO"
+        android:fontFamily="@font/league"
         android:textSize="20sp"
         android:paddingTop="20dp"
         android:textColor="#333"

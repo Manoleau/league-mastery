@@ -16,4 +16,9 @@ interface LeagueMasteryApi {
         @Path("name_id") nameId: String,
         @Query("language_code") languageCode: String
     ): Call<ChampionLanguage>
+    @GET("/summoners/by_riot/{riot}/{tag}")
+    fun getSummonerByRiotAcc(
+        @Path("riot") riot: String,
+        @Path("tag") tag: String
+    ): Call<Summoner>
 }
