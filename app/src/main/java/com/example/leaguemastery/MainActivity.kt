@@ -18,12 +18,19 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val summonerId = intent.getStringExtra("summonerId")
+        val accountId = intent.getStringExtra("accountId")
+        val puuid = intent.getStringExtra("puuid")
+        val server = intent.getStringExtra("server")
+        val summonerName = intent.getStringExtra("summonerName")
+        val riotName = intent.getStringExtra("riotName")
+        val tag = intent.getStringExtra("tag")
+        val profileIconId = intent.getStringExtra("profileIconId")
+        val summonerLevel = intent.getStringExtra("summonerLevel")
 
         val navView: BottomNavigationView = binding.navView
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications

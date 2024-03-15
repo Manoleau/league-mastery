@@ -14,7 +14,7 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     override fun onCreate(db: SQLiteDatabase) {
         val query = ("CREATE TABLE " + TABLE_NAME + " ("
                 + id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                riotAcc + " VARCHAR(255) NOT NULL," +
+                riotAcc + " UNIQUE VARCHAR(255) NOT NULL" +
                 ");")
         db.execSQL(query)
     }
@@ -25,10 +25,12 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     }
 
     fun addSummoner(riotAccDB : String){
-        val values = ContentValues()
-        values.put(riotAcc, riotAccDB)
-        val db = this.writableDatabase
-        db.insert(TABLE_NAME, null, values)
+        if(getSummoner(riotAccDB) == null){
+            val values = ContentValues()
+            values.put(riotAcc, riotAccDB)
+            val db = this.writableDatabase
+            db.insert(TABLE_NAME, null, values)
+        }
     }
     fun removeSummoner(idDB : Int):Int{
         val db = this.writableDatabase
@@ -39,6 +41,32 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         return db.delete(TABLE_NAME, selection, selectionArgs)
     }
 
+    fun getSummoner(riotAccDB: String): SummonerDB? {
+        val db = this.readableDatabase
+        var res: SummonerDB? = null
+        val projection = arrayOf("id", "riotacc")
+        val selection = "riotacc = ?"
+        val selectionArgs = arrayOf(riotAccDB)
+        val cursor:Cursor = db.query(
+            TABLE_NAME,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            null
+        )
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getInt(0)
+                val riotAcc = cursor.getString(1)
+                res = SummonerDB(id, riotAcc)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return res
+
+    }
     @SuppressLint("Range")
     fun getAllSummoner(): ArrayList<SummonerDB> {
         val db = this.readableDatabase

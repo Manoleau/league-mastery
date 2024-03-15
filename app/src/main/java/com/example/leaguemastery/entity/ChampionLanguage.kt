@@ -13,6 +13,5 @@ class ChampionLanguage(
     val title: String
 ) :
     ChampionAbstract(
-        _id!!, key!!,
-        name_id!!, image_icon!!, image_splash!!, image_load_screen!!, roles
+        _id, key, name_id, image_icon, image_splash, image_load_screen, roles
     )

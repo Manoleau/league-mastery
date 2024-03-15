@@ -3,6 +3,8 @@ package com.example.leaguemastery.API
 import com.example.leaguemastery.entity.*
 import retrofit2.Call
 import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -21,4 +23,30 @@ interface LeagueMasteryApi {
         @Path("riot") riot: String,
         @Path("tag") tag: String
     ): Call<Summoner>
+    @GET("/summoners/champions/{puuid}")
+    fun getSummonerChampionLanguageByPuuid(
+        @Path("puuid") puuid: String,
+        @Query("language_code") languageCode: String,
+        @Query("champion_id") champion_id: Int
+    ): Call<ChampionSummonerLanguage>
+    @GET("/summoners/champions/{puuid}")
+    fun getSummonerChampionsLanguageByPuuid(
+        @Path("puuid") puuid: String,
+        @Query("language_code") languageCode: String,
+    ): Call<List<ChampionSummonerLanguage>>
+    @GET("/summoners/champions/{puuid}")
+    fun getSummonerChampionDefaultByPuuid(
+        @Path("puuid") puuid: String,
+        @Query("champion_id") champion_id: Int
+    ): Call<ChampionSummonerDefault>
+    @GET("/summoners/champions/{puuid}")
+    fun getSummonerChampionsDefaultByPuuid(
+        @Path("puuid") puuid: String,
+    ): Call<List<ChampionSummonerDefault>>
+    @POST("/admin/champions/addchampionsmasteries/{puuid}")
+    fun addSummonerChampions(
+        @Path("puuid") puuid: String,
+        @Header("x-api-key") apiKey: String
+    ): Call<List<ChampionSummonerDefault>>
+
 }
