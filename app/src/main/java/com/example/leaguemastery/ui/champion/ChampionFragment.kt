@@ -1,7 +1,7 @@
 package com.example.leaguemastery.ui.champion
 
+//noinspection SuspiciousImport
 import android.R
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -23,7 +23,6 @@ import androidx.fragment.app.Fragment
 import com.example.leaguemastery.API.ApiClient
 import com.example.leaguemastery.ImagesDrawable
 import com.example.leaguemastery.databinding.FragmentChampionBinding
-import com.example.leaguemastery.entity.ChampionAbstract
 import com.example.leaguemastery.entity.ChampionDefault
 import com.example.leaguemastery.entity.ChampionLanguage
 import com.example.leaguemastery.entity.Language
@@ -39,18 +38,12 @@ class ChampionFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var champions:List<ChampionDefault>
     private var championsName:ArrayList<String> = ArrayList()
-    var image_icon_champ: Drawable? = null
-    var image_load_screen_champ: Drawable? = null
-    var image_splash_champ: Drawable? = null
-    var image_roles: ArrayList<Drawable> = ArrayList()
-
-
+    var championActual: ChampionLanguage? = null
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentChampionBinding.inflate(inflater, container, false)
         val root: View = binding.root
         val champEditText = binding.champEditText
@@ -62,8 +55,6 @@ class ChampionFragment : Fragment() {
         colonneTitre.gravity = Gravity.CENTER_HORIZONTAL
         colonneRoles.gravity = Gravity.CENTER_HORIZONTAL
         setAutoCompleteTextView(champEditText)
-
-
         btn.setOnClickListener{
             setOnClickSearchChamp(champEditText.text.toString(), binding)
         }
@@ -74,13 +65,12 @@ class ChampionFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-    private fun setChampions(latchOrigin:CountDownLatch){
+    private fun setChampions(){
         val latch = CountDownLatch(champions.size)
-
         for (champion in champions) {
             Thread {
                 try {
-                    setImagesChamp(champion)
+                    setImagesChamp()
                 } finally {
                     latch.countDown()
                     Log.i("Champion", "${champion.name_id} : ${latch.count}")
@@ -90,7 +80,6 @@ class ChampionFragment : Fragment() {
         }
         Thread {
             latch.await()
-            latchOrigin.countDown()
             Log.i("Images", ImagesDrawable.data.toString())
         }.start()
     }
@@ -104,41 +93,36 @@ class ChampionFragment : Fragment() {
                     val champ = response.body()
                     if (champ != null) {
                         val handler = Handler(Looper.getMainLooper())
-                        image_roles = ArrayList()
-                        val roles = champ.roles
+                        championActual = champ
+
+                        val roles = championActual!!.roles
                         if (roles != null) {
                             for(role in roles){
                                 if(!ImagesDrawable.data.containsKey(role?._id)){
                                     Thread{
                                         setImageRole(role?._id, role?.image_icon)
                                     }.start()
-
-                                } else {
-                                    ImagesDrawable.data.get(role?._id)?.get("image")?.let { image_roles.add(it) }
                                 }
                             }
                         }
                         handler.post{
-
-                            if(!ImagesDrawable.data.containsKey(champ.key.toString())){
-                                ImagesDrawable.data.put(champ.key.toString(), HashMap())
+                            if(!ImagesDrawable.data.containsKey(championActual!!.key.toString())){
+                                ImagesDrawable.data[championActual!!.key.toString()] = HashMap()
                                 Thread {
-                                    setImagesChamp(champ)
+                                    setImagesChamp()
                                     handler.post {
-                                        //val builder = getBuilderNewChamp(champ)
-                                        //builder.show()
-                                        setTableRow(champ, binding)
+                                        val builder = getBuilderNewChamp()
+                                        builder.show()
+                                        setTableRow(binding)
+
                                         binding.progressBar.visibility = View.GONE
 
                                     }
                                 }.start()
                             } else {
-                                image_icon_champ = ImagesDrawable.data.get(champ.key.toString())?.get("image_icon")
-                                image_splash_champ = ImagesDrawable.data.get(champ.key.toString())?.get("image_splash")
-                                image_load_screen_champ = ImagesDrawable.data.get(champ.key.toString())?.get("image_load_screen")
                                 //val builder = getBuilderNewChamp(champ)
                                 //builder.show()
-                                setTableRow(champ, binding)
+                                setTableRow(binding)
                                 binding.progressBar.visibility = View.GONE
                             }
                         }
@@ -156,28 +140,18 @@ class ChampionFragment : Fragment() {
     }
     private fun setAutoCompleteTextView(autoCompleteTextView: AutoCompleteTextView){
         val callChampions = ApiClient.api.getChampions()
-        Log.i("Chargement", "Départ")
 
         callChampions.enqueue(object : Callback<List<ChampionDefault>> {
             override fun onResponse(call: Call<List<ChampionDefault>>, response: Response<List<ChampionDefault>>) {
                 if (response.isSuccessful) {
                     champions = response.body()!!
+                    setChampions()
                     championsName = ArrayList()
                     for(champion in champions){
                         championsName.add(champion.name_id)
                     }
                     val adapter: ArrayAdapter<String>? = context?.let { ArrayAdapter<String>(it, R.layout.simple_list_item_1, championsName) }
                     autoCompleteTextView.setAdapter(adapter)
-                    //val latch = CountDownLatch(1)
-
-                    //Thread{
-                    //    setChampions(latch)
-                    //}.start()
-                    //Thread{
-                    //    latch.await()
-                    //    Log.i("Chargement", "Fini")
-                    // }
-
                 } else {
                     champions = emptyList()
                     autoCompleteTextView.setAdapter(null)
@@ -192,36 +166,36 @@ class ChampionFragment : Fragment() {
             }
         })
     }
-    fun setImagesChamp(champ: ChampionAbstract?){
-        if (champ != null) {
-            try {
-                var image_icon_champ: Drawable? = null
-                var image_load_screen_champ: Drawable? = null
-                var image_splash_champ: Drawable? = null
-                val image_icon = URL(champ.image_icon).content as InputStream
-                image_icon_champ = Drawable.createFromStream(image_icon, "image_icon")
-                val image_load_screen = URL(champ.image_load_screen).content as InputStream
-                image_load_screen_champ = Drawable.createFromStream(image_load_screen, "image_load_screen")
-                val image_splash = URL(champ.image_splash).content as InputStream
-                image_splash_champ = Drawable.createFromStream(image_splash, "image_splash")
-                if(image_icon_champ != null){
-                    ImagesDrawable.data.get(champ.key.toString())?.put("image_icon",
-                        image_icon_champ
-                    )
-                }
-                if(image_splash_champ != null){
-                    ImagesDrawable.data.get(champ.key.toString())?.put("image_splash",
-                        image_splash_champ
-                    )
-                }
-                if(image_load_screen_champ != null){
-                    ImagesDrawable.data.get(champ.key.toString())?.put("image_load_screen",
-                        image_load_screen_champ
-                    )
-                }
-            } catch (e: Exception) {
-                Log.e("Erreur Image", e.toString())
+    fun setImagesChamp(){
+        try {
+            val imageIconChamp: Drawable?
+            val imageLoadScreenChamp: Drawable?
+            val imageSplashChamp: Drawable?
+            val imageIcon = URL(championActual!!.image_icon).content as InputStream
+            imageIconChamp = Drawable.createFromStream(imageIcon, "image_icon")
+            val imageLoadScreen = URL(championActual!!.image_load_screen).content as InputStream
+            imageLoadScreenChamp = Drawable.createFromStream(imageLoadScreen, "image_load_screen")
+            val imageSplash = URL(championActual!!.image_splash).content as InputStream
+            imageSplashChamp = Drawable.createFromStream(imageSplash, "image_splash")
+
+            if(imageIconChamp != null){
+                ImagesDrawable.data[championActual!!.key.toString()]?.put("image_icon",
+                    imageIconChamp
+                )
             }
+            if(imageSplashChamp != null){
+                ImagesDrawable.data[championActual!!.key.toString()]?.put("image_splash",
+                    imageSplashChamp
+                )
+            }
+            if(imageLoadScreenChamp != null){
+                ImagesDrawable.data[championActual!!.key.toString()]?.put("image_load_screen",
+                    imageLoadScreenChamp
+                )
+            }
+
+        } catch (e: Exception) {
+            Log.e("Erreur Image", e.toString())
         }
     }
     fun setImageRole(id:String?,url: String?){
@@ -230,48 +204,46 @@ class ChampionFragment : Fragment() {
                 val image = URL(url).content as InputStream
                 val imagerole = Drawable.createFromStream(image, "image")
                 if (imagerole != null) {
-                    image_roles.add(imagerole)
-                    ImagesDrawable.data.put(id, HashMap())
-                    ImagesDrawable.data.get(id)?.put("image", imagerole)
+                    ImagesDrawable.data[id] = HashMap()
+                    ImagesDrawable.data[id]?.put("image", imagerole)
                 }
             } catch (e: Exception) {
                 Log.e("Erreur Image", e.toString())
             }
         }
     }
-    fun getBuilderNewChamp(champ:ChampionLanguage): AlertDialog.Builder{
-        var msg_roles = ""
-        val roles = champ.roles
+    fun getBuilderNewChamp(): AlertDialog.Builder{
+        var msgRoles = ""
+        val roles = championActual?.roles
         if (roles != null) {
             for(role in roles){
-                msg_roles += role?.default_name + " "
+                msgRoles += role?.default_name + " "
             }
         }
         val builder = AlertDialog.Builder(context)
-        builder.setTitle("Champion ${champ.name}")
-        builder.setMessage("Nom : ${champ.name}\nTitre : ${champ.title}\nRoles : $msg_roles")
-        builder.setIcon(image_icon_champ)
+        builder.setTitle("Champion ${championActual?.name}")
+        builder.setMessage("Nom : ${championActual?.name}\nTitre : ${championActual?.title}\nRoles : $msgRoles")
+        builder.setIcon(ImagesDrawable.data[championActual?.key.toString()]?.get("image_icon"))
         builder.setPositiveButton("OK") { dialog, _ ->
             dialog.dismiss()
         }
         return builder
     }
-    fun setTableRow(champ: ChampionLanguage, binding:FragmentChampionBinding){
+    fun setTableRow(binding:FragmentChampionBinding){
         val colonneRoles = binding.colonneRoles
         colonneRoles.removeAllViews()
-
-        binding.textViewChamp.text = champ.name
+        binding.textViewChamp.text = championActual?.name
 
         val imageViewIconChamp = binding.imageViewIconChamp
         imageViewIconChamp.layoutParams = LinearLayout.LayoutParams(200, 200).apply {
             gravity = Gravity.CENTER
         }
         imageViewIconChamp.scaleType = ImageView.ScaleType.FIT_CENTER
-        imageViewIconChamp.setImageDrawable(image_icon_champ)
+        imageViewIconChamp.setImageDrawable(ImagesDrawable.data[championActual?.key.toString()]?.get("image_icon"))
 
-        binding.textViewTitle.text = champ.title
+        binding.textViewTitle.text = championActual?.title
 
-        for(role in champ.roles!!){
+        for(role in championActual?.roles!!){
             val linearLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
@@ -290,8 +262,7 @@ class ChampionFragment : Fragment() {
             }
             val imageViewRole = ImageView(context).apply {
                 scaleType = ImageView.ScaleType.FIT_CENTER
-
-                setImageDrawable(ImagesDrawable.data.get(role?._id)?.get("image"))
+                setImageDrawable(ImagesDrawable.data[role?._id]?.get("image"))
             }
             linearLayout.addView(imageViewRole)
             linearLayout.addView(textViewRole)
