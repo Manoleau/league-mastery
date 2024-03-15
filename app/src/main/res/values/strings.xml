@@ -15,4 +15,5 @@
     <string name="champion_attribut">Champion</string>
     <string name="titre_attribut">Titre</string>
     <string name="roles_attribut">Roles</string>
+    <string name="main_search">Champion...</string>
 </resources>
