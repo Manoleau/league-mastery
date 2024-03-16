@@ -1,14 +1,13 @@
-package com.example.leaguemastery.ui.dashboard
+package com.example.leaguemastery.ui.champion
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.example.leaguemastery.databinding.FragmentDashboardBinding
 
-class DashboardFragment : Fragment() {
+class ChampionFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
 

@@ -11,5 +11,6 @@
     <color name="LeagueYellow_dark">#9C742E</color>
 
     <color name="white">#FFFFFFFF</color>
-    <color name="main_background">#F0F0F0</color>
-</resources>
+    <color name="main_background_light">#F0F0F0</color>
+    <color name="main_background_night">#101010</color>
+    </resources>

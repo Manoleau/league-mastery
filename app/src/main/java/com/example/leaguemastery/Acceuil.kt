@@ -10,6 +10,8 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SwitchCompat
 import com.example.leaguemastery.API.ApiClient
 import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.entity.ChampionSummonerDefault
@@ -28,6 +30,8 @@ class Acceuil : AppCompatActivity() {
         dbHelper = DBHelper(this, null)
         val context = this
         val riotAccText = findViewById<AutoCompleteTextView>(R.id.search_field)
+        val themeToggleSwitch: SwitchCompat = findViewById(R.id.themeToggleSwitch)
+
         setAutoCompleteRiotAcc(riotAccText)
         btn_search.setOnClickListener {
             progressBar.visibility = View.VISIBLE
@@ -85,6 +89,17 @@ class Acceuil : AppCompatActivity() {
             } else {
                 Toast.makeText(context, "Joueur introuvable", Toast.LENGTH_SHORT).show()
                 progressBar.visibility = View.GONE
+            }
+        }
+
+        // Initialisez l'état du switch selon le mode nuit actuel
+        themeToggleSwitch.isChecked = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+
+        themeToggleSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
         }
     }
