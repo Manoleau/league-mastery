@@ -1,12 +1,29 @@
 package com.example.leaguemastery.ui.profile
 
+import android.annotation.SuppressLint
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.leaguemastery.API.ApiClientLeagueMastery
+import com.example.leaguemastery.ImagesDrawable
+import com.example.leaguemastery.Cache
 import com.example.leaguemastery.databinding.FragmentProfileBinding
+import com.example.leaguemastery.entity.ChampionSummonerLanguage
+import com.example.leaguemastery.entity.Language
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ProfileFragment : Fragment() {
 
@@ -16,17 +33,86 @@ class ProfileFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        val progressBar = binding.progressBarMain
+        progressBar.visibility = View.VISIBLE
         val root: View = binding.root
+        val activity = requireActivity()
+        val intent = activity.intent
+        val summonerId = intent.getStringExtra("summonerId")
+        val accountId = intent.getStringExtra("accountId")
+        val puuid = intent.getStringExtra("puuid")
+        val server = intent.getStringExtra("server")
+        val summonerName = intent.getStringExtra("summonerName")
+        val riotName = intent.getStringExtra("riotName")
+        val tag = intent.getStringExtra("tag")
+        val profileIconId = intent.getIntExtra("profileIconId",-1)
+        val summonerLevel = intent.getIntExtra("summonerLevel", 0)
+        val profileIconImageView:ImageView = binding.profileIconImageView
+        val riotNameTextView:TextView = binding.riotNameTextView
+        val summonerLevelTextView:TextView = binding.summonerLevelTextView
+        val handler = Handler(Looper.getMainLooper())
+        var iconSummoner:Drawable?
+        if(ImagesDrawable.data[profileIconId.toString()] == null){
+            Thread{
+                iconSummoner = ImagesDrawable.setImage(
+                    "https://ddragon.leagueoflegends.com/cdn/${Cache.version}/img/profileicon/${profileIconId}.png",
+                    profileIconId.toString(),
+                    "image"
+                )
+                handler.post{
+                    profileIconImageView.setImageDrawable(iconSummoner)
+                    riotNameTextView.text = "$riotName#$tag"
+                    summonerLevelTextView.text = "Level: $summonerLevel"
+                }
+            }.start()
+        } else {
+            iconSummoner = ImagesDrawable.data[profileIconId.toString()]?.get("image")
+            profileIconImageView.setImageDrawable(iconSummoner)
+            riotNameTextView.text = "$riotName#$tag"
+            summonerLevelTextView.text = "Level: $summonerLevel"
+        }
+        val callMasteryChampion = ApiClientLeagueMastery.api.getSummonerChampionsLanguageByPuuid(puuid!!, Cache.langue.code)
+        callMasteryChampion.enqueue(object : Callback<List<ChampionSummonerLanguage>>{
+            override fun onResponse(call: Call<List<ChampionSummonerLanguage>>, response: Response<List<ChampionSummonerLanguage>>) {
+                if(response.isSuccessful){
+                    val masteryList = response.body()
 
+                    if(masteryList != null){
+                        val sortedMasteryList = masteryList.sortedByDescending { it.championPoints ?: 0 }
+                        val adapterM = MasteryAdapter(sortedMasteryList)
+                        val searchEditText = binding.searchChampionEditText
+                        searchEditText.addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
+                            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                                adapterM.getFilter().filter(s)
+                            }
+
+                            override fun afterTextChanged(s: Editable) {}
+                        })
+
+                        binding.masteryRecyclerView.apply {
+                            layoutManager = LinearLayoutManager(context)
+                            adapter = adapterM
+                        }
+                    }
+                } else {
+                    Toast.makeText(context, "Erreur ${response.code()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(call: Call<List<ChampionSummonerLanguage>>, t: Throwable) {
+                Toast.makeText(context, "Erreur ${t.message}", Toast.LENGTH_SHORT).show()
+
+            }
+        })
+        progressBar.visibility = View.GONE
         return root
     }
 
@@ -34,4 +120,5 @@ class ProfileFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
 }

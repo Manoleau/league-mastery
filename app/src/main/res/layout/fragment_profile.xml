@@ -4,6 +4,68 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.profile.ProfileFragment">
+    tools:context=".ui.profile.ProfileFragment"
+    android:paddingBottom="56dp">
+    <ProgressBar
+        android:id="@+id/progressBarMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/profileIconImageView"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_champion_black" />
+
+        <TextView
+            android:id="@+id/riotNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:text="Riot Name"
+            android:textSize="24sp"
+            android:textColor="?android:textColor"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/summonerLevelTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Level: 0"
+            android:textSize="16sp"
+            android:textColor="?android:textColor" />
+        <EditText
+            android:id="@+id/searchChampionEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Champion"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/masteryRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:foreground="@drawable/recyclerview_border"
+            android:clipToPadding="false"
+            android:padding="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/summonerLevelTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,7 @@
 package com.example.leaguemastery.entity
 
 enum class Language(val displayName: String, val code: String) {
+    FR_FR("French (France)", "fr_FR"),
     EN_US("English (United States)", "en_US"),
     CS_CZ("Czech (Czech Republic)", "cs_CZ"),
     DE_DE("German (Germany)", "de_DE"),
@@ -12,7 +13,6 @@ enum class Language(val displayName: String, val code: String) {
     ES_AR("Spanish (Argentina)", "es_AR"),
     ES_ES("Spanish (Spain)", "es_ES"),
     ES_MX("Spanish (Mexico)", "es_MX"),
-    FR_FR("French (France)", "fr_FR"),
     HU_HU("Hungarian (Hungary)", "hu_HU"),
     IT_IT("Italian (Italy)", "it_IT"),
     JA_JP("Japanese (Japan)", "ja_JP"),
@@ -29,6 +29,6 @@ enum class Language(val displayName: String, val code: String) {
     ZH_TW("Chinese (Taiwan)", "zh_TW");
 
     companion object {
-        fun fromCode(code: String): Language? = values().find { it.code == code }
+        fun fromCode(code: String): Language? = entries.find { it.code == code }
     }
 }

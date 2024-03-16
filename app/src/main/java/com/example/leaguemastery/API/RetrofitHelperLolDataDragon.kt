@@ -5,9 +5,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object RetrofitHelper {
+object RetrofitHelperLolDataDragon {
 
-    private const val baseUrl = "http://manolodev.ddns.net:3000/"
+    private const val baseUrl = "https://ddragon.leagueoflegends.com/"
 
     val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -25,8 +25,8 @@ object RetrofitHelper {
             .build()
     }
 }
-object ApiClient {
-    val api:LeagueMasteryApi by lazy {
-        RetrofitHelper.retrofit.create(LeagueMasteryApi::class.java)
+object ApiClientLolDataDragon {
+    val api:LolDataDragonApi by lazy {
+        RetrofitHelperLolDataDragon.retrofit.create(LolDataDragonApi::class.java)
     }
 }

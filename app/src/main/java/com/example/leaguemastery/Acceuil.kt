@@ -1,24 +1,28 @@
 package com.example.leaguemastery
 
 import android.content.Intent
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.Spinner
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.widget.SwitchCompat
-import com.example.leaguemastery.API.ApiClient
+import com.example.leaguemastery.API.ApiClientLeagueMastery
+import com.example.leaguemastery.API.ApiClientLolDataDragon
 import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.entity.ChampionSummonerDefault
+import com.example.leaguemastery.entity.Language
 import com.example.leaguemastery.entity.Summoner
+import com.example.leaguemastery.entity.Version
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Locale
 
 class Acceuil : AppCompatActivity() {
     private lateinit var dbHelper: DBHelper
@@ -26,11 +30,43 @@ class Acceuil : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_acceuil)
         val btn_search = findViewById<Button>(R.id.search_button)
-        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+        val progressBar = findViewById<ProgressBar>(R.id.progressBarAcceuil)
         dbHelper = DBHelper(this, null)
         val context = this
         val riotAccText = findViewById<AutoCompleteTextView>(R.id.search_field)
-        val themeToggleSwitch: SwitchCompat = findViewById(R.id.themeToggleSwitch)
+
+        val callVersion = ApiClientLolDataDragon.api.getVersions()
+        callVersion.enqueue(object : Callback<List<Version>>{
+            override fun onResponse(call: Call<List<Version>>, response: Response<List<Version>>) {
+                if(response.isSuccessful){
+                    val versions = response.body()
+                    Cache.version = versions?.get(0)?.version.toString()
+                } else {
+                    Cache.version = "14.5.1"
+                }
+            }
+
+            override fun onFailure(call: Call<List<Version>>, t: Throwable) {
+                Cache.version = "14.5.1"
+            }
+        })
+        val languages = Language.entries.toTypedArray()
+        val languagesStr = ArrayList<String>()
+        for (language in languages){
+            languagesStr.add(language.displayName)
+        }
+        val spinner: Spinner = findViewById(R.id.language_selector)
+        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, languagesStr)
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                Cache.langue = languages[position]
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                Cache.langue = Language.FR_FR
+            }
+        }
 
         setAutoCompleteRiotAcc(riotAccText)
         btn_search.setOnClickListener {
@@ -38,7 +74,7 @@ class Acceuil : AppCompatActivity() {
             val tmp = riotAccText.text.split("#")
 
             if(tmp.size == 2){
-                val callSummoner = ApiClient.api.getSummonerByRiotAcc(tmp[0], tmp[1])
+                val callSummoner = ApiClientLeagueMastery.api.getSummonerByRiotAcc(tmp[0], tmp[1])
                 callSummoner.enqueue(object :Callback<Summoner>{
                     override fun onResponse(call: Call<Summoner>, response: Response<Summoner>) {
                         if(response.isSuccessful){
@@ -46,7 +82,7 @@ class Acceuil : AppCompatActivity() {
                             if(summoner != null){
                                 dbHelper.addSummoner(riotAccText.text.toString())
                                 //setAutoCompleteRiotAcc(riotAccText)
-                                val callSummonerChampion = ApiClient.api.addSummonerChampions(summoner.puuid, "GGEZ")
+                                val callSummonerChampion = ApiClientLeagueMastery.api.addSummonerChampions(summoner.puuid, "GGEZ")
                                 callSummonerChampion.enqueue(object : Callback<List<ChampionSummonerDefault>>{
                                     override fun onResponse(
                                         call: Call<List<ChampionSummonerDefault>>,
@@ -91,17 +127,6 @@ class Acceuil : AppCompatActivity() {
                 progressBar.visibility = View.GONE
             }
         }
-
-        // Initialisez l'état du switch selon le mode nuit actuel
-        themeToggleSwitch.isChecked = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
-
-        themeToggleSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-        }
     }
 
     override fun onStart() {
@@ -123,4 +148,11 @@ class Acceuil : AppCompatActivity() {
         autoCompleteTextView.setAdapter(adapter)
         autoCompleteTextView.threshold = 1
     }
+
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
 }
