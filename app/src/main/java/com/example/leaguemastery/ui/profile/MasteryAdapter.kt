@@ -6,18 +6,15 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.leaguemastery.ImagesDrawable
+import com.example.leaguemastery.Cache
 import com.example.leaguemastery.R
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
-import java.util.Locale
 
 class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>) :
-    RecyclerView.Adapter<MasteryAdapter.MasteryViewHolder>(), Filterable {
+    RecyclerView.Adapter<MasteryAdapter.MasteryViewHolder>() {
 
     class MasteryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val championName: TextView = view.findViewById(R.id.championNameTextView)
@@ -39,16 +36,16 @@ class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>) :
 
         val handler = Handler(Looper.getMainLooper())
         val mastery = masteryList[position]
-        if(ImagesDrawable.data[mastery.champion.image_icon.toString()] == null) {
+        if(Cache.data[mastery.champion.image_icon.toString()] == null) {
             Thread{
-                val championIcon = ImagesDrawable.setImage(mastery.champion.image_icon.toString(), mastery.champion.key.toString(), "image_icon")
+                val championIcon = Cache.setImage(mastery.champion.image_icon.toString(), mastery.champion.key.toString(), "image_icon")
                 handler.post{
                     setAll(holder, mastery, championIcon!!, position)
                 }
             }.start()
         }
         else{
-            val championIcon = ImagesDrawable.data[mastery.champion.image_icon.toString()]?.get("image_icon")
+            val championIcon = Cache.data[mastery.champion.image_icon.toString()]?.get("image_icon")
             setAll(holder, mastery, championIcon!!, position)
         }
 
@@ -101,32 +98,6 @@ class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>) :
         holder.championPoints.text = mastery.championPoints.toString()
     }
     override fun getItemCount() = masteryList.size
-    override fun getFilter(): Filter {
-        return object : Filter() {
-            override fun performFiltering(constraint: CharSequence?): FilterResults {
-                val charSearch = constraint.toString()
-                masteryListFilter = if (charSearch.isEmpty()) {
-                    masteryList
-                } else {
-                    val resultList = ArrayList<ChampionSummonerLanguage>()
-                    for (row in masteryList) {
-                        val name_id:String = row.champion.name_id!!
-                        if (row.champion.name.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT)) or name_id.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))) {
-                            resultList.add(row)
-                        }
-                    }
-                    resultList
-                }
-                return FilterResults().apply { values = masteryListFilter }
-            }
-
-            @Suppress("UNCHECKED_CAST")
-            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                masteryListFilter = results?.values as ArrayList<ChampionSummonerLanguage>
-                notifyDataSetChanged()
-            }
-        }
-    }
 
 
 }

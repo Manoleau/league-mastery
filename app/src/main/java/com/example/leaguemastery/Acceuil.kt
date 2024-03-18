@@ -1,7 +1,6 @@
 package com.example.leaguemastery
 
 import android.content.Intent
-import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -22,7 +21,6 @@ import com.example.leaguemastery.entity.Version
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.Locale
 
 class Acceuil : AppCompatActivity() {
     private lateinit var dbHelper: DBHelper
@@ -34,22 +32,26 @@ class Acceuil : AppCompatActivity() {
         dbHelper = DBHelper(this, null)
         val context = this
         val riotAccText = findViewById<AutoCompleteTextView>(R.id.search_field)
+        if(Cache.data.size == 0){
+            Cache.data = dbHelper.getImages(this)
+        }
+        if(Cache.version == ""){
+            val callVersion = ApiClientLolDataDragon.api.getVersions()
+            callVersion.enqueue(object : Callback<List<Version>>{
+                override fun onResponse(call: Call<List<Version>>, response: Response<List<Version>>) {
+                    if(response.isSuccessful){
+                        val versions = response.body()
+                        Cache.version = versions?.get(0)?.version.toString()
+                    } else {
+                        Cache.version = "14.5.1"
+                    }
+                }
 
-        val callVersion = ApiClientLolDataDragon.api.getVersions()
-        callVersion.enqueue(object : Callback<List<Version>>{
-            override fun onResponse(call: Call<List<Version>>, response: Response<List<Version>>) {
-                if(response.isSuccessful){
-                    val versions = response.body()
-                    Cache.version = versions?.get(0)?.version.toString()
-                } else {
+                override fun onFailure(call: Call<List<Version>>, t: Throwable) {
                     Cache.version = "14.5.1"
                 }
-            }
-
-            override fun onFailure(call: Call<List<Version>>, t: Throwable) {
-                Cache.version = "14.5.1"
-            }
-        })
+            })
+        }
         val languages = Language.entries.toTypedArray()
         val languagesStr = ArrayList<String>()
         for (language in languages){
@@ -153,6 +155,7 @@ class Acceuil : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        Cache.saveInPhone(dbHelper)
     }
 
 }

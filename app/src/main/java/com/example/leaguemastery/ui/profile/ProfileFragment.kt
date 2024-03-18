@@ -5,8 +5,6 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,11 +14,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.leaguemastery.API.ApiClientLeagueMastery
-import com.example.leaguemastery.ImagesDrawable
 import com.example.leaguemastery.Cache
 import com.example.leaguemastery.databinding.FragmentProfileBinding
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
-import com.example.leaguemastery.entity.Language
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -59,9 +55,9 @@ class ProfileFragment : Fragment() {
         val summonerLevelTextView:TextView = binding.summonerLevelTextView
         val handler = Handler(Looper.getMainLooper())
         var iconSummoner:Drawable?
-        if(ImagesDrawable.data[profileIconId.toString()] == null){
+        if(Cache.data[profileIconId.toString()] == null){
             Thread{
-                iconSummoner = ImagesDrawable.setImage(
+                iconSummoner = Cache.setImage(
                     "https://ddragon.leagueoflegends.com/cdn/${Cache.version}/img/profileicon/${profileIconId}.png",
                     profileIconId.toString(),
                     "image"
@@ -73,7 +69,7 @@ class ProfileFragment : Fragment() {
                 }
             }.start()
         } else {
-            iconSummoner = ImagesDrawable.data[profileIconId.toString()]?.get("image")
+            iconSummoner = Cache.data[profileIconId.toString()]?.get("image")
             profileIconImageView.setImageDrawable(iconSummoner)
             riotNameTextView.text = "$riotName#$tag"
             summonerLevelTextView.text = "Level: $summonerLevel"
@@ -88,15 +84,6 @@ class ProfileFragment : Fragment() {
                         val sortedMasteryList = masteryList.sortedByDescending { it.championPoints ?: 0 }
                         val adapterM = MasteryAdapter(sortedMasteryList)
                         val searchEditText = binding.searchChampionEditText
-                        searchEditText.addTextChangedListener(object : TextWatcher {
-                            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
-                            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                                adapterM.getFilter().filter(s)
-                            }
-
-                            override fun afterTextChanged(s: Editable) {}
-                        })
 
                         binding.masteryRecyclerView.apply {
                             layoutManager = LinearLayoutManager(context)
