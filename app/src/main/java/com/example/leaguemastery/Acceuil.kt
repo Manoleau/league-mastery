@@ -17,7 +17,6 @@ import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.entity.ChampionSummonerDefault
 import com.example.leaguemastery.entity.Language
 import com.example.leaguemastery.entity.Summoner
-import com.example.leaguemastery.entity.Version
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -32,22 +31,21 @@ class Acceuil : AppCompatActivity() {
         dbHelper = DBHelper(this, null)
         val context = this
         val riotAccText = findViewById<AutoCompleteTextView>(R.id.search_field)
-        if(Cache.data.size == 0){
-            Cache.data = dbHelper.getImages(this)
-        }
+
         if(Cache.version == ""){
             val callVersion = ApiClientLolDataDragon.api.getVersions()
-            callVersion.enqueue(object : Callback<List<Version>>{
-                override fun onResponse(call: Call<List<Version>>, response: Response<List<Version>>) {
+            callVersion.enqueue(object : Callback<List<String>>{
+                override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
                     if(response.isSuccessful){
                         val versions = response.body()
-                        Cache.version = versions?.get(0)?.version.toString()
+                        Cache.version = versions!![0]
+                        Cache.downloadAndSetImages(context, dbHelper)
                     } else {
                         Cache.version = "14.5.1"
                     }
                 }
 
-                override fun onFailure(call: Call<List<Version>>, t: Throwable) {
+                override fun onFailure(call: Call<List<String>>, t: Throwable) {
                     Cache.version = "14.5.1"
                 }
             })
@@ -83,7 +81,6 @@ class Acceuil : AppCompatActivity() {
                             val summoner = response.body()
                             if(summoner != null){
                                 dbHelper.addSummoner(riotAccText.text.toString())
-                                //setAutoCompleteRiotAcc(riotAccText)
                                 val callSummonerChampion = ApiClientLeagueMastery.api.addSummonerChampions(summoner.puuid, "GGEZ")
                                 callSummonerChampion.enqueue(object : Callback<List<ChampionSummonerDefault>>{
                                     override fun onResponse(
@@ -153,9 +150,11 @@ class Acceuil : AppCompatActivity() {
 
 
 
+
+
     override fun onDestroy() {
         super.onDestroy()
-        Cache.saveInPhone(dbHelper)
+        //Cache.saveInPhone(dbHelper)
     }
 
 }

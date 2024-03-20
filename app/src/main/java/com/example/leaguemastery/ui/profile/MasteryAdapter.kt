@@ -3,6 +3,7 @@ package com.example.leaguemastery.ui.profile
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +11,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leaguemastery.Cache
+import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.R
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
 
-class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>) :
+class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>, private val dbHelper: DBHelper) :
     RecyclerView.Adapter<MasteryAdapter.MasteryViewHolder>() {
 
     class MasteryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -23,6 +25,7 @@ class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>) :
         val championPoints: TextView = view.findViewById(R.id.championPointsTextView)
         val chestGrantedImage: ImageView = view.findViewById(R.id.chestGrantedImageView)
         val chestGrantedText: TextView = view.findViewById(R.id.chestGrantedTextView)
+        val context = view.context
 
     }
 
@@ -33,22 +36,11 @@ class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>) :
     }
 
     override fun onBindViewHolder(holder: MasteryViewHolder, position: Int) {
-
-        val handler = Handler(Looper.getMainLooper())
         val mastery = masteryList[position]
-        if(Cache.data[mastery.champion.image_icon.toString()] == null) {
-            Thread{
-                val championIcon = Cache.setImage(mastery.champion.image_icon.toString(), mastery.champion.key.toString(), "image_icon")
-                handler.post{
-                    setAll(holder, mastery, championIcon!!, position)
-                }
-            }.start()
-        }
-        else{
-            val championIcon = Cache.data[mastery.champion.image_icon.toString()]?.get("image_icon")
+        if(Cache.data[mastery.champion.key.toString()] != null && Cache.data[mastery.champion.key.toString()]!!.containsKey("image_icon")) {
+            val championIcon = Cache.data[mastery.champion.key.toString()]!!["image_icon"]
             setAll(holder, mastery, championIcon!!, position)
         }
-
     }
 
 

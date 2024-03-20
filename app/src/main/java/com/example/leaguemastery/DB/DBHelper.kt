@@ -15,7 +15,7 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     override fun onCreate(db: SQLiteDatabase) {
         val query = ("CREATE TABLE " + TABLE_NAME_RIOT_ACC + " ("
                 + id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                riotAcc + " UNIQUE VARCHAR(255) NOT NULL" +
+                riotAcc + " VARCHAR(255) NOT NULL" +
                 ");")
         val query2 = ("CREATE TABLE " + TABLE_NAME_IMAGE + " ("
                 + id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -102,9 +102,8 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         cursor.close()
         return res
     }
-
     fun addOrUpgradeImage(key1DB:String, key2DB:String, imageDB:String, versionDB: String){
-        val versionD = containImage(key1DB,key2DB)
+        val versionD = getVersionImage(key1DB,key2DB)
         if(versionD == ""){
             val values = ContentValues()
             values.put(key1, key1DB)
@@ -113,7 +112,7 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
             values.put(version, versionDB)
             val db = this.writableDatabase
             db.insert(TABLE_NAME_IMAGE, null, values)
-        } else if(versionD != versionDB){
+        } else if(versionD != versionDB) {
             val db = this.writableDatabase
             val values = ContentValues()
             values.put(image, imageDB)
@@ -123,10 +122,26 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
             db.update(TABLE_NAME_IMAGE, values, selection, selectionArgs)
         }
     }
-    fun getVersionImages(){
-
+    fun getVersionImages():String{
+        val db = this.readableDatabase
+        val projection = arrayOf("id", version)
+        var res = ""
+        val cursor:Cursor = db.query(
+            TABLE_NAME_IMAGE,
+            projection,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        if(cursor.moveToFirst()){
+            res = cursor.getString(1)
+        }
+        cursor.close()
+        return res
     }
-    private fun containImage(key1DB:String, key2DB: String):String{
+    fun getVersionImage(key1DB:String, key2DB: String):String{
         val db = this.readableDatabase
         val projection = arrayOf("id", version)
         var res = ""
@@ -169,6 +184,28 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
                 res[key1] = HashMap()
                 res[key1]?.put(key2, Cache.base64ToDrawable(image, context))
             } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return res
+    }
+
+    fun getImage(context: Context, key1DB:String, key2DB: String): Drawable? {
+        val db = this.readableDatabase
+        var res: Drawable? = null
+        val projection = arrayOf("id", image)
+        val selection = "key1 = ? AND key2 = ?"
+        val selectionArgs = arrayOf(key1DB, key2DB)
+        val cursor:Cursor = db.query(
+            TABLE_NAME_IMAGE,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            null
+        )
+        if (cursor.moveToFirst()) {
+            res = Cache.base64ToDrawable(cursor.getString(1), context)
         }
         cursor.close()
         return res

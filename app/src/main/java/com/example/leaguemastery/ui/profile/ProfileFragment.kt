@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.leaguemastery.API.ApiClientLeagueMastery
 import com.example.leaguemastery.Cache
+import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.databinding.FragmentProfileBinding
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
 import retrofit2.Call
@@ -28,6 +30,7 @@ class ProfileFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private lateinit var dbHelper: DBHelper
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -41,10 +44,14 @@ class ProfileFragment : Fragment() {
         val root: View = binding.root
         val activity = requireActivity()
         val intent = activity.intent
+        val context = root.context
+        dbHelper = DBHelper(context, null)
+
         val summonerId = intent.getStringExtra("summonerId")
         val accountId = intent.getStringExtra("accountId")
         val puuid = intent.getStringExtra("puuid")
         val server = intent.getStringExtra("server")
+
         val summonerName = intent.getStringExtra("summonerName")
         val riotName = intent.getStringExtra("riotName")
         val tag = intent.getStringExtra("tag")
@@ -60,19 +67,22 @@ class ProfileFragment : Fragment() {
                 iconSummoner = Cache.setImage(
                     "https://ddragon.leagueoflegends.com/cdn/${Cache.version}/img/profileicon/${profileIconId}.png",
                     profileIconId.toString(),
-                    "image"
+                    "image",
+                    Cache.version,
+                    dbHelper,
+                    context
                 )
                 handler.post{
-                    profileIconImageView.setImageDrawable(iconSummoner)
-                    riotNameTextView.text = "$riotName#$tag"
-                    summonerLevelTextView.text = "Level: $summonerLevel"
+                    if (riotName != null && tag != null && iconSummoner != null) {
+                        setProfile(profileIconImageView, riotNameTextView, summonerLevelTextView, riotName, tag, summonerLevel, iconSummoner!!)
+                    }
                 }
             }.start()
         } else {
             iconSummoner = Cache.data[profileIconId.toString()]?.get("image")
-            profileIconImageView.setImageDrawable(iconSummoner)
-            riotNameTextView.text = "$riotName#$tag"
-            summonerLevelTextView.text = "Level: $summonerLevel"
+            if (riotName != null && tag != null && iconSummoner != null) {
+                setProfile(profileIconImageView, riotNameTextView, summonerLevelTextView, riotName, tag, summonerLevel, iconSummoner!!)
+            }
         }
         val callMasteryChampion = ApiClientLeagueMastery.api.getSummonerChampionsLanguageByPuuid(puuid!!, Cache.langue.code)
         callMasteryChampion.enqueue(object : Callback<List<ChampionSummonerLanguage>>{
@@ -82,7 +92,7 @@ class ProfileFragment : Fragment() {
 
                     if(masteryList != null){
                         val sortedMasteryList = masteryList.sortedByDescending { it.championPoints ?: 0 }
-                        val adapterM = MasteryAdapter(sortedMasteryList)
+                        val adapterM = MasteryAdapter(sortedMasteryList, dbHelper)
                         val searchEditText = binding.searchChampionEditText
 
                         binding.masteryRecyclerView.apply {
@@ -106,6 +116,12 @@ class ProfileFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    fun setProfile(profileIconImageView:ImageView, riotNameTextView:TextView, summonerLevelTextView:TextView, riotName:String, tag:String, summonerLevel:Int, iconSummoner:Drawable){
+        profileIconImageView.setImageDrawable(iconSummoner)
+        riotNameTextView.text = "$riotName#$tag"
+        summonerLevelTextView.text = "Level: $summonerLevel"
     }
 
 }

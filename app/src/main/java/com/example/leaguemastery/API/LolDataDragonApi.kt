@@ -6,5 +6,5 @@ import retrofit2.http.GET
 
 interface LolDataDragonApi {
     @GET("/api/versions.json")
-    fun getVersions() : Call<List<Version>>
+    fun getVersions() : Call<List<String>>
 }

@@ -8,8 +8,13 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Base64
 import android.util.Log
+import com.example.leaguemastery.API.ApiClientLeagueMastery
 import com.example.leaguemastery.DB.DBHelper
+import com.example.leaguemastery.entity.ChampionDefault
 import com.example.leaguemastery.entity.Language
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.net.URL
@@ -19,22 +24,27 @@ class Cache {
         var version = ""
         var langue: Language = Language.FR_FR
         var data = HashMap<String, HashMap<String, Drawable>>()
-        fun setImage(url:String, key:String, key2:String): Drawable?{
+        fun setImage(url:String, key:String, key2:String, version:String, dbHelper: DBHelper, context: Context): Drawable?{
             try {
-                val image: Drawable?
-                val imageIcon = URL(url).content as InputStream
-                image = Drawable.createFromStream(imageIcon, key2)
+                val oldVer = dbHelper.getVersionImage(key, key2)
+                if(oldVer != version){
+                    val image: Drawable?
+                    val imageIcon = URL(url).content as InputStream
+                    image = Drawable.createFromStream(imageIcon, key2)
 
-                if(image != null){
-                    if(data[key] == null){
-                        data[key] = HashMap()
+                    if(image != null){
+                        if(data[key] == null){
+                            data[key] = HashMap()
+                        }
+                        data[key]?.put(key2,
+                            image
+                        )
+                        dbHelper.addOrUpgradeImage(key, key2, drawableToBase64(image), version)
                     }
-                    data[key]?.put(key2,
-                        image
-                    )
+                    return image
+                } else {
+                    return dbHelper.getImage(context, key, key2)
                 }
-                return image
-
             } catch (e: Exception) {
                 Log.e("Erreur Image", e.toString())
                 return null
@@ -61,12 +71,38 @@ class Cache {
             val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             return BitmapDrawable(context.resources, bitmap)
         }
-        fun saveInPhone(dbHelper: DBHelper){
-            data.forEach { (key, innerMap) ->
-                innerMap.forEach { (innerKey, drawable) ->
-                    dbHelper.addOrUpgradeImage(key, innerKey, drawableToBase64(drawable), version)
-                }
+        fun downloadAndSetImages(context: Context, dbHelper: DBHelper){
+            if(dbHelper.getVersionImages() == version){
+                data = dbHelper.getImages(context)
+            } else {
+                val callChampions = ApiClientLeagueMastery.api.getChampions()
+                callChampions.enqueue(object : Callback<List<ChampionDefault>>{
+                    override fun onResponse(
+                        call: Call<List<ChampionDefault>>,
+                        response: Response<List<ChampionDefault>>
+                    ) {
+                        if(response.isSuccessful){
+                            val champions = response.body()
+                            data = HashMap()
+                            if (champions != null) {
+                                for(champion in champions){
+                                    Thread{
+                                        setImage("https://ddragon.leagueoflegends.com/cdn/$version/img/champion/${champion.name_id}.png", champion.key.toString(), "image_icon", version, dbHelper, context)
+                                    }.start()
+                                }
+                            }
+                        } else {
+                            Log.i("Erreur champions", response.message()+ " " + response.code())
+                        }
+                    }
+
+                    override fun onFailure(call: Call<List<ChampionDefault>>, t: Throwable) {
+                        Log.i("Erreur champions", t.toString())
+
+                    }
+                })
             }
+
         }
     }
 }
