@@ -5,6 +5,7 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -48,5 +49,16 @@ interface LeagueMasteryApi {
         @Path("puuid") puuid: String,
         @Header("x-api-key") apiKey: String
     ): Call<List<ChampionSummonerDefault>>
+    @PUT("/admin/summoners/{puuid}")
+    fun updateSummoner(
+        @Path("puuid") puuid: String,
+        @Header("x-api-key") apiKey: String
+    ): Call<Summoner>
+
+    @PUT("/admin/summoners/{puuid}")
+    fun updateSummonerChampions(
+        @Path("puuid") puuid: String,
+        @Header("x-api-key") apiKey: String
+    ): Call<List<ChampionSummonerAbstract>>
 
 }

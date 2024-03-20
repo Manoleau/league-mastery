@@ -6,9 +6,10 @@ class ChampionSummonerLanguage(
     championPointsSinceLastLevel: Int?,
     championPointsUntilNextLevel: Int?,
     chestGranted: Boolean?,
-    summoner: Summoner?,
-    val champion:ChampionLanguage
+    val champion:ChampionLanguage,
+    val summoner: Summoner?
+
 ) :
     ChampionSummonerAbstract(
-        championLevel,championPoints,championPointsSinceLastLevel,championPointsUntilNextLevel,chestGranted, summoner
+        championLevel,championPoints,championPointsSinceLastLevel,championPointsUntilNextLevel,chestGranted
     )

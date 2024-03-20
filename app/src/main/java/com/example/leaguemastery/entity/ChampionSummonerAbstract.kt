@@ -6,5 +6,4 @@ abstract class ChampionSummonerAbstract(
     val championPointsSinceLastLevel: Int?,
     val championPointsUntilNextLevel: Int?,
     val chestGranted: Boolean?,
-    val summoner: Summoner?,
 )

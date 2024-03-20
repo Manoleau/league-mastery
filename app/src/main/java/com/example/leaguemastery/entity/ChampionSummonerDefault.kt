@@ -6,9 +6,9 @@ class ChampionSummonerDefault(
     championPointsSinceLastLevel: Int?,
     championPointsUntilNextLevel: Int?,
     chestGranted: Boolean?,
-    summoner: Summoner?,
-    val champion:ChampionDefault
+    val champion:ChampionDefault,
+    val summoner: Summoner?
 ) :
     ChampionSummonerAbstract(
-        championLevel,championPoints,championPointsSinceLastLevel,championPointsUntilNextLevel,chestGranted, summoner
+        championLevel,championPoints,championPointsSinceLastLevel,championPointsUntilNextLevel,chestGranted
     )

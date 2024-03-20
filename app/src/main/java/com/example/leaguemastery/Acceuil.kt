@@ -8,11 +8,13 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.Toast
 import com.example.leaguemastery.API.ApiClientLeagueMastery
 import com.example.leaguemastery.API.ApiClientLolDataDragon
+import com.example.leaguemastery.API.Update
 import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.entity.ChampionSummonerDefault
 import com.example.leaguemastery.entity.Language
@@ -126,6 +128,8 @@ class Acceuil : AppCompatActivity() {
                 progressBar.visibility = View.GONE
             }
         }
+
+        btn_search.isEnabled = false
     }
 
     override fun onStart() {
@@ -138,6 +142,10 @@ class Acceuil : AppCompatActivity() {
         setAutoCompleteRiotAcc(riotAccText)
 
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        //Cache.saveInPhone(dbHelper)
+    }
     fun setAutoCompleteRiotAcc(autoCompleteTextView:AutoCompleteTextView){
         val summonersDB = ArrayList<String>()
         for (summ in dbHelper.getAllSummoner()){
@@ -146,15 +154,6 @@ class Acceuil : AppCompatActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,summonersDB)
         autoCompleteTextView.setAdapter(adapter)
         autoCompleteTextView.threshold = 1
-    }
-
-
-
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        //Cache.saveInPhone(dbHelper)
     }
 
 }
