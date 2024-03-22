@@ -75,7 +75,13 @@ class Acceuil : AppCompatActivity() {
             val tmp = riotAccInText.split("#")
 
             if(tmp.size == 2){
-                val callSummoner = ApiClientLeagueMastery.api.getSummonerByPuuid(dbHelper.getSummoner(riotAccInText.toString())!!.puuid)
+                val summoner = dbHelper.getSummoner(riotAccInText.toString())
+                val callSummoner:Call<Summoner>
+                if(summoner != null){
+                    callSummoner = ApiClientLeagueMastery.api.getSummonerByPuuid(summoner.puuid)
+                } else {
+                    callSummoner = ApiClientLeagueMastery.api.getSummonerByRiotAcc(tmp[0], tmp[1])
+                }
                 callSummoner.enqueue(object :Callback<Summoner>{
                     override fun onResponse(call: Call<Summoner>, response: Response<Summoner>) {
                         if(response.isSuccessful){
