@@ -59,10 +59,10 @@ interface LeagueMasteryApi {
         @Header("x-api-key") apiKey: String
     ): Call<Summoner>
 
-    @PUT("/admin/summoners/{puuid}")
+    @PUT("/admin/champions/championsmasteries/{puuid}")
     fun updateSummonerChampions(
         @Path("puuid") puuid: String,
         @Header("x-api-key") apiKey: String
-    ): Call<List<ChampionSummonerAbstract>>
+    ): Call<List<ChampionSummonerDefault>>
 
 }

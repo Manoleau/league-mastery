@@ -1,11 +1,13 @@
 package com.example.leaguemastery.API
 
 import android.R
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import com.example.leaguemastery.entity.ChampionSummonerAbstract
+import com.example.leaguemastery.entity.ChampionSummonerDefault
 import com.example.leaguemastery.entity.Summoner
 import retrofit2.Call
 import retrofit2.Callback
@@ -22,15 +24,15 @@ class Update {
                     call: Call<Summoner>,
                     response: Response<Summoner>
                 ) {
-                    ApiClientLeagueMastery.api.updateSummonerChampions(puuid, "GGEZ").enqueue(object : Callback<List<ChampionSummonerAbstract>>{
+                    ApiClientLeagueMastery.api.updateSummonerChampions(puuid, "GGEZ").enqueue(object : Callback<List<ChampionSummonerDefault>>{
                         override fun onResponse(
-                            call: Call<List<ChampionSummonerAbstract>>,
-                            response: Response<List<ChampionSummonerAbstract>>
+                            call: Call<List<ChampionSummonerDefault>>,
+                            response: Response<List<ChampionSummonerDefault>>
                         ) {
                             listViewUpdate.forEach { it.isEnabled = true }
                         }
 
-                        override fun onFailure(call: Call<List<ChampionSummonerAbstract>>, t: Throwable) {
+                        override fun onFailure(call: Call<List<ChampionSummonerDefault>>, t: Throwable) {
                             listViewUpdate.forEach { it.isEnabled = true }
                         }
                     })
