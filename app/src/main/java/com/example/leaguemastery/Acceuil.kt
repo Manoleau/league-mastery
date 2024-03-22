@@ -17,6 +17,7 @@ import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.entity.ChampionSummonerDefault
 import com.example.leaguemastery.entity.Language
 import com.example.leaguemastery.entity.Summoner
+import com.example.leaguemastery.ui.profile.MasteryAdapter
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -70,6 +71,9 @@ class Acceuil : AppCompatActivity() {
 
         setAutoCompleteRiotAcc(riotAccText)
         btn_search.setOnClickListener {
+            Cache.actualSummonerChampion = ArrayList()
+            Cache.adapterM = MasteryAdapter(ArrayList(), dbHelper)
+            Cache.actualSummoner = null
             progressBar.visibility = View.VISIBLE
             val riotAccInText = riotAccText.text
             val tmp = riotAccInText.split("#")
@@ -95,17 +99,8 @@ class Acceuil : AppCompatActivity() {
                                         response: Response<List<ChampionSummonerDefault>>
                                     ) {
                                         progressBar.visibility = View.GONE
-                                        val intent = Intent(context, MainActivity::class.java).apply {
-                                            putExtra("summonerId", summoner.summonerId)
-                                            putExtra("accountId", summoner.accountId)
-                                            putExtra("puuid", summoner.puuid)
-                                            putExtra("server", summoner.server)
-                                            putExtra("summonerName", summoner.summonerName)
-                                            putExtra("riotName", summoner.riotName)
-                                            putExtra("tag", summoner.tag)
-                                            putExtra("profileIconId", summoner.profileIconId)
-                                            putExtra("summonerLevel", summoner.summonerLevel)
-                                        }
+                                        Cache.actualSummoner = summoner
+                                        val intent = Intent(context, MainActivity::class.java)
                                         startActivity(intent)
                                     }
                                     override fun onFailure(

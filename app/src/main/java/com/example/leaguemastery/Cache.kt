@@ -11,7 +11,10 @@ import android.util.Log
 import com.example.leaguemastery.API.ApiClientLeagueMastery
 import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.entity.ChampionDefault
+import com.example.leaguemastery.entity.ChampionSummonerLanguage
 import com.example.leaguemastery.entity.Language
+import com.example.leaguemastery.entity.Summoner
+import com.example.leaguemastery.ui.profile.MasteryAdapter
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,7 +27,12 @@ class Cache {
         var version = ""
         var langue: Language = Language.FR_FR
         var data = HashMap<String, HashMap<String, Drawable>>()
+        var actualSummoner:Summoner? = null
+        var actualSummonerChampion: List<ChampionSummonerLanguage> = ArrayList()
+        var adapterM: MasteryAdapter? = null
+
         fun setImage(url:String, key:String, key2:String, version:String, dbHelper: DBHelper, context: Context): Drawable?{
+
             try {
                 val oldVer = dbHelper.getVersionImage(key, key2)
                 if(oldVer != version){

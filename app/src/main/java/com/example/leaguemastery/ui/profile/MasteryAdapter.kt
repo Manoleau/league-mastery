@@ -15,8 +15,10 @@ import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.R
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
 
-class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>, private val dbHelper: DBHelper) :
+class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>, private val dbHelper: DBHelper) :
     RecyclerView.Adapter<MasteryAdapter.MasteryViewHolder>() {
+
+    private var filteredMasteryList: List<ChampionSummonerLanguage> = masteryList
 
     class MasteryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val championName: TextView = view.findViewById(R.id.championNameTextView)
@@ -26,7 +28,6 @@ class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>, pr
         val chestGrantedImage: ImageView = view.findViewById(R.id.chestGrantedImageView)
         val chestGrantedText: TextView = view.findViewById(R.id.chestGrantedTextView)
         val context = view.context
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MasteryViewHolder {
@@ -36,7 +37,7 @@ class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>, pr
     }
 
     override fun onBindViewHolder(holder: MasteryViewHolder, position: Int) {
-        val mastery = masteryList[position]
+        val mastery = filteredMasteryList[position]
         if(Cache.data[mastery.champion.key.toString()] != null && Cache.data[mastery.champion.key.toString()]!!.containsKey("image_icon")) {
             val championIcon = Cache.data[mastery.champion.key.toString()]!!["image_icon"]
             setAll(holder, mastery, championIcon!!, position)
@@ -89,7 +90,22 @@ class MasteryAdapter(private val masteryList: List<ChampionSummonerLanguage>, pr
         }
         holder.championPoints.text = mastery.championPoints.toString()
     }
-    override fun getItemCount() = masteryList.size
+    override fun getItemCount() = filteredMasteryList.size
 
+    fun loadMastery(newMasteryList: List<ChampionSummonerLanguage>) {
+        masteryList = newMasteryList
+        notifyDataSetChanged()
+    }
+
+    fun filterByName(name: String) {
+        if (name.isEmpty()) {
+            filteredMasteryList = masteryList
+        } else {
+            filteredMasteryList = masteryList.filter {
+                it.champion.name.toLowerCase().contains(name.toLowerCase())
+            }
+        }
+        notifyDataSetChanged()
+    }
 
 }

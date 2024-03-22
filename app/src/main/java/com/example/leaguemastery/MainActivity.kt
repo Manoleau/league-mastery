@@ -1,11 +1,9 @@
 package com.example.leaguemastery
 
 import android.os.Bundle
-import android.view.View
-import android.widget.AutoCompleteTextView
-import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.Spinner
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -16,33 +14,24 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private var isBackButtonDisabled = false
     private lateinit var navView:BottomNavigationView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-
         navView = binding.navView
-
-        Update.listViewUpdate.add(navView)
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         navView.setupWithNavController(navController)
     }
 
     private fun updateSummoner(puuid:String) {
-        isBackButtonDisabled = true
-        val progressBar:ProgressBar = binding.progressBarMain
-        progressBar.visibility = View.VISIBLE
-        Update.updateSummoner(puuid)
-        progressBar.visibility = View.GONE
-        isBackButtonDisabled = false
+        val progressBar = binding.progressBaMain
+        Update.updateSummoner(puuid, binding.root.context, progressBar)
     }
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        if (!isBackButtonDisabled) {
+        if (!Update.isBackButtonDisabled) {
             super.onBackPressed()
         }
     }
@@ -50,5 +39,22 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Update.listViewUpdate.remove(navView)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        getMenuInflater().inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_update -> {
+                Cache.actualSummoner?.let { updateSummoner(it.puuid) }
+                return true
+            }
+
+
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 }
