@@ -15,7 +15,8 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     override fun onCreate(db: SQLiteDatabase) {
         val query = ("CREATE TABLE " + TABLE_NAME_RIOT_ACC + " ("
                 + id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                riotAcc + " VARCHAR(255) NOT NULL" +
+                riotAcc + " VARCHAR(255) NOT NULL," +
+                puuid + " VARCHAR(255) NOT NULL" +
                 ");")
         val query2 = ("CREATE TABLE " + TABLE_NAME_IMAGE + " ("
                 + id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -34,10 +35,11 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         onCreate(db)
     }
 
-    fun addSummoner(riotAccDB : String){
+    fun addSummoner(riotAccDB : String, puuidDB:String){
         if(getSummoner(riotAccDB) == null){
             val values = ContentValues()
             values.put(riotAcc, riotAccDB)
+            values.put(puuid, puuidDB)
             val db = this.writableDatabase
             db.insert(TABLE_NAME_RIOT_ACC, null, values)
         }
@@ -50,11 +52,10 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
 
         return db.delete(TABLE_NAME_RIOT_ACC, selection, selectionArgs)
     }
-
     fun getSummoner(riotAccDB: String): SummonerDB? {
         val db = this.readableDatabase
         var res: SummonerDB? = null
-        val projection = arrayOf("id", "riotacc")
+        val projection = arrayOf("id", "riotacc", "puuid")
         val selection = "riotacc = ?"
         val selectionArgs = arrayOf(riotAccDB)
         val cursor:Cursor = db.query(
@@ -70,7 +71,8 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
             do {
                 val id = cursor.getInt(0)
                 val riotAcc = cursor.getString(1)
-                res = SummonerDB(id, riotAcc)
+                val puuid = cursor.getString(2)
+                res = SummonerDB(id, riotAcc, puuid)
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -81,7 +83,7 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     fun getAllSummoner(): ArrayList<SummonerDB> {
         val db = this.readableDatabase
         val res = ArrayList<SummonerDB>()
-        val projection = arrayOf("id", "riotacc")
+        val projection = arrayOf("id", "riotacc", "puuid")
         val cursor:Cursor = db.query(
             TABLE_NAME_RIOT_ACC,
             projection,
@@ -96,7 +98,8 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
             do {
                 val id = cursor.getInt(cursor.getColumnIndex("id"))
                 val riotAcc = cursor.getString(cursor.getColumnIndex("riotacc"))
-                res.add(SummonerDB(id, riotAcc))
+                val puuid = cursor.getString(cursor.getColumnIndex("puuid"))
+                res.add(SummonerDB(id, riotAcc, puuid))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -217,6 +220,7 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         val TABLE_NAME_RIOT_ACC = "summoner"
         val id = "id"
         val riotAcc = "riotacc"
+        val puuid = "puuid"
 
         val TABLE_NAME_IMAGE = "image"
         val key1 = "key1"

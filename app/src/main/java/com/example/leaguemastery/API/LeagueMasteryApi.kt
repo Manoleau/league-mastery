@@ -24,6 +24,10 @@ interface LeagueMasteryApi {
         @Path("riot") riot: String,
         @Path("tag") tag: String
     ): Call<Summoner>
+    @GET("/summoners/by_puuid/{puuid}")
+    fun getSummonerByPuuid(
+        @Path("puuid") riot: String
+    ): Call<Summoner>
     @GET("/summoners/champions/{puuid}")
     fun getSummonerChampionLanguageByPuuid(
         @Path("puuid") puuid: String,

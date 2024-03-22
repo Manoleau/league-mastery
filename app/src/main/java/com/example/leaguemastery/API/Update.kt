@@ -14,31 +14,32 @@ import retrofit2.Response
 
 class Update {
     companion object{
-
-
+        val listViewUpdate: ArrayList<View> = ArrayList()
         fun updateSummoner(puuid:String){
+            listViewUpdate.forEach { it.isEnabled = false }
             ApiClientLeagueMastery.api.updateSummoner(puuid, "GGEZ").enqueue(object : Callback<Summoner>{
                 override fun onResponse(
                     call: Call<Summoner>,
                     response: Response<Summoner>
                 ) {
+                    ApiClientLeagueMastery.api.updateSummonerChampions(puuid, "GGEZ").enqueue(object : Callback<List<ChampionSummonerAbstract>>{
+                        override fun onResponse(
+                            call: Call<List<ChampionSummonerAbstract>>,
+                            response: Response<List<ChampionSummonerAbstract>>
+                        ) {
+                            listViewUpdate.forEach { it.isEnabled = true }
+                        }
+
+                        override fun onFailure(call: Call<List<ChampionSummonerAbstract>>, t: Throwable) {
+                            listViewUpdate.forEach { it.isEnabled = true }
+                        }
+                    })
                 }
 
                 override fun onFailure(call: Call<Summoner>, t: Throwable) {
+                    listViewUpdate.forEach { it.isEnabled = true }
                 }
             })
-
-            ApiClientLeagueMastery.api.updateSummonerChampions(puuid, "GGEZ").enqueue(object : Callback<List<ChampionSummonerAbstract>>{
-                override fun onResponse(
-                    call: Call<List<ChampionSummonerAbstract>>,
-                    response: Response<List<ChampionSummonerAbstract>>
-                ) {
-                }
-
-                override fun onFailure(call: Call<List<ChampionSummonerAbstract>>, t: Throwable) {
-                }
-            })
-
         }
     }
 }

@@ -17,13 +17,16 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var isBackButtonDisabled = false
+    private lateinit var navView:BottomNavigationView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
 
-        val navView: BottomNavigationView = binding.navView
+        navView = binding.navView
+
+        Update.listViewUpdate.add(navView)
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         navView.setupWithNavController(navController)
@@ -32,16 +35,20 @@ class MainActivity : AppCompatActivity() {
     private fun updateSummoner(puuid:String) {
         isBackButtonDisabled = true
         val progressBar:ProgressBar = binding.progressBarMain
-        progressBar.visibility = View.GONE
-        Update.updateSummoner(puuid)
         progressBar.visibility = View.VISIBLE
+        Update.updateSummoner(puuid)
+        progressBar.visibility = View.GONE
         isBackButtonDisabled = false
-
     }
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (!isBackButtonDisabled) {
             super.onBackPressed()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Update.listViewUpdate.remove(navView)
     }
 }

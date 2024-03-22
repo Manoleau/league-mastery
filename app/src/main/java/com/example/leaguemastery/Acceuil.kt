@@ -8,13 +8,11 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.Toast
 import com.example.leaguemastery.API.ApiClientLeagueMastery
 import com.example.leaguemastery.API.ApiClientLolDataDragon
-import com.example.leaguemastery.API.Update
 import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.entity.ChampionSummonerDefault
 import com.example.leaguemastery.entity.Language
@@ -73,16 +71,17 @@ class Acceuil : AppCompatActivity() {
         setAutoCompleteRiotAcc(riotAccText)
         btn_search.setOnClickListener {
             progressBar.visibility = View.VISIBLE
-            val tmp = riotAccText.text.split("#")
+            val riotAccInText = riotAccText.text
+            val tmp = riotAccInText.split("#")
 
             if(tmp.size == 2){
-                val callSummoner = ApiClientLeagueMastery.api.getSummonerByRiotAcc(tmp[0], tmp[1])
+                val callSummoner = ApiClientLeagueMastery.api.getSummonerByPuuid(dbHelper.getSummoner(riotAccInText.toString())!!.puuid)
                 callSummoner.enqueue(object :Callback<Summoner>{
                     override fun onResponse(call: Call<Summoner>, response: Response<Summoner>) {
                         if(response.isSuccessful){
                             val summoner = response.body()
                             if(summoner != null){
-                                dbHelper.addSummoner(riotAccText.text.toString())
+                                dbHelper.addSummoner(riotAccText.text.toString(),summoner.puuid)
                                 val callSummonerChampion = ApiClientLeagueMastery.api.addSummonerChampions(summoner.puuid, "GGEZ")
                                 callSummonerChampion.enqueue(object : Callback<List<ChampionSummonerDefault>>{
                                     override fun onResponse(
@@ -128,8 +127,6 @@ class Acceuil : AppCompatActivity() {
                 progressBar.visibility = View.GONE
             }
         }
-
-        btn_search.isEnabled = false
     }
 
     override fun onStart() {
