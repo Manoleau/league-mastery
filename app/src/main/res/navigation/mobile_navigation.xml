@@ -12,12 +12,6 @@
         tools:layout="@layout/fragment_profile" />
 
     <fragment
-        android:id="@+id/navigation_champion"
-        android:name="com.example.leaguemastery.ui.champion.ChampionFragment"
-        android:label="@string/title_champion"
-        tools:layout="@layout/fragment_champion" />
-
-    <fragment
         android:id="@+id/navigation_charts"
         android:name="com.example.leaguemastery.ui.charts.ChartsFragment"
         android:label="@string/title_chart"

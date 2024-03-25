@@ -7,11 +7,6 @@
         android:title="@string/title_profile" />
 
     <item
-        android:id="@+id/navigation_champion"
-        android:icon="@drawable/ic_champion_black"
-        android:title="@string/title_champion" />
-
-    <item
         android:id="@+id/navigation_charts"
         android:icon="@drawable/ic_chart_black"
         android:title="@string/title_chart" />
