@@ -65,4 +65,9 @@ interface LeagueMasteryApi {
         @Header("x-api-key") apiKey: String
     ): Call<List<ChampionSummonerDefault>>
 
+    @GET("/roles")
+    fun getRolesLanguage(
+        @Query("language_code") languageCode: String
+    ): Call<List<RoleLanguage>>
+
 }

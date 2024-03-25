@@ -7,7 +7,7 @@ abstract class ChampionAbstract(
     val image_icon: String?,
     val image_splash: String?,
     val image_load_screen: String?,
-    val roles: List<Role?>?
+    val roleDefaults: List<RoleDefault?>?
 ) {
 
     fun get_id(): String? {

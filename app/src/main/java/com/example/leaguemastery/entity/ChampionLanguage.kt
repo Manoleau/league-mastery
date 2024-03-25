@@ -7,11 +7,11 @@ class ChampionLanguage(
     image_icon: String?,
     image_splash: String?,
     image_load_screen: String?,
-    roles: List<Role?>?,
+    roleDefaults: List<RoleDefault?>?,
     val name: String,
     val language_code: String,
     val title: String
 ) :
     ChampionAbstract(
-        _id, key, name_id, image_icon, image_splash, image_load_screen, roles
+        _id, key, name_id, image_icon, image_splash, image_load_screen, roleDefaults
     )
