@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Treemap Example</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        /* Style pour le Treemap */
+        * {
+            margin: 0;
+            padding: 0;
+            background-color: #101010;
+        }
+        .node {
+            border: solid 1px white;
+            font: 10px sans-serif;
+            line-height: 12px;
+            overflow: hidden;
+            position: absolute;
+            text-indent: 2px;
+        }
+    </style>
+</head>
+<body>
+<div id="treemap" style="width: 100vw; height: 100vh;"></div>
+
+<script>
+        var data = {
+            "screen": {
+                "height":300,
+                "width": 100
+            },
+            "data":{
+                "name": "Root",
+                "children": [
+                    { "name": "A", "value": 100 },
+                    { "name": "B", "value": 50 },
+                    {
+                        "name": "C", "children": [
+                            { "name": "C1", "value": 25 },
+                            { "name": "C2", "value": 75 }
+                        ]
+                    },
+                    { "name": "D", "value": 80 }
+                ]
+            }
+
+        };
+
+        function createTreeMap(json) {
+            const data = json.data
+            const width = json.screen.width;
+            const height = json.screen.height;
+
+            var treemap = d3.treemap()
+                .size([width, height])
+                .padding(1);
+
+            var root = d3.hierarchy(data)
+                .sum(function(d) { return d.value; })
+                .sort(function(a, b) { return b.height - a.height || b.value - a.value; });
+
+            treemap(root);
+
+            var svg = d3.select("#treemap").append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .style("font", "10px sans-serif");
+
+            var leaf = svg.selectAll("g")
+                .data(root.leaves())
+                .join("g")
+                .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+            leaf.append("rect")
+                .attr("fill", d => d.data.value > 50 ? "#6baed6" : "#9ecae1")
+                .attr("width", d => d.x1 - d.x0)
+                .attr("height", d => d.y1 - d.y0);
+
+            leaf.append("text")
+                .attr("x", 5) // Légèrement décalé pour la lisibilité
+                .attr("y", "1.1em") // Alignement vertical pour la lisibilité
+                .text(d => d.data.name);
+        }
+
+        createTreeMap(data);
+    </script>
+</body>
+</html>
