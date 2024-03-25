@@ -1,24 +1,16 @@
 package com.example.leaguemastery.API
 
-import android.R
 import android.content.Context
-import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.leaguemastery.Cache
-import com.example.leaguemastery.entity.ChampionSummonerAbstract
 import com.example.leaguemastery.entity.ChampionSummonerDefault
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
 import com.example.leaguemastery.entity.Summoner
-import com.example.leaguemastery.ui.profile.MasteryAdapter
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
 
 class Update {
     companion object{

@@ -9,6 +9,8 @@
     <color name="LeagueYellow_light">#D1A760</color>
     <color name="LeagueYellow">#BF9039</color>
     <color name="LeagueYellow_dark">#9C742E</color>
+    <color name="textColor">#101010</color>
+
 
     <color name="white">#FFFFFFFF</color>
     <color name="main_background_light">#F0F0F0</color>

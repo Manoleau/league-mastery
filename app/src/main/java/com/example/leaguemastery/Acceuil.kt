@@ -1,5 +1,6 @@
 package com.example.leaguemastery
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,6 +17,7 @@ import com.example.leaguemastery.API.ApiClientLolDataDragon
 import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.entity.ChampionSummonerDefault
 import com.example.leaguemastery.entity.Language
+import com.example.leaguemastery.entity.RoleLanguage
 import com.example.leaguemastery.entity.Summoner
 import com.example.leaguemastery.ui.profile.MasteryAdapter
 import retrofit2.Call
@@ -56,6 +58,7 @@ class Acceuil : AppCompatActivity() {
         for (language in languages){
             languagesStr.add(language.displayName)
         }
+
         val spinner: Spinner = findViewById(R.id.language_selector)
         spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, languagesStr)
 
@@ -107,7 +110,7 @@ class Acceuil : AppCompatActivity() {
                                         call: Call<List<ChampionSummonerDefault>>,
                                         t: Throwable
                                     ) {
-                                        Toast.makeText(context, "Erreur de chargement : ${t.message}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Aucune connexion internet", Toast.LENGTH_SHORT).show()
                                     }
                                 })
                             }
@@ -118,7 +121,7 @@ class Acceuil : AppCompatActivity() {
                     }
                     override fun onFailure(call: Call<Summoner>, t: Throwable) {
                         t.message
-                        Toast.makeText(context, "Erreur de chargement : ${t.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Aucune connexion internet", Toast.LENGTH_SHORT).show()
                         progressBar.visibility = View.GONE
 
                     }
@@ -130,6 +133,21 @@ class Acceuil : AppCompatActivity() {
         }
     }
 
+
+    fun setRoles(context: Context, language: Language){
+        ApiClientLeagueMastery.api.getRolesLanguage(language.code).enqueue(object : Callback<List<RoleLanguage>>{
+            override fun onResponse(
+                call: Call<List<RoleLanguage>>,
+                response: Response<List<RoleLanguage>>
+            ) {
+
+            }
+
+            override fun onFailure(call: Call<List<RoleLanguage>>, t: Throwable) {
+                Toast.makeText(context, "Aucune connexion internet", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
     override fun onStart() {
         super.onStart()
     }
