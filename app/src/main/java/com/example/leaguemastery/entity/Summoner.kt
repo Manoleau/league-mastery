@@ -9,5 +9,6 @@ data class Summoner(
     val riotName: String,
     val tag: String,
     val profileIconId: Int,
-    val summonerLevel: Int
+    val summonerLevel: Int,
+    var masteryPoints: Int = 0
 )

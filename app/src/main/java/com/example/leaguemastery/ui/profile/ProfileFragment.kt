@@ -1,12 +1,14 @@
 package com.example.leaguemastery.ui.profile
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +22,7 @@ import com.example.leaguemastery.Cache
 import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.databinding.FragmentProfileBinding
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
+import com.example.leaguemastery.entity.Summoner
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,34 +47,10 @@ class ProfileFragment : Fragment() {
         val profileIconImageView:ImageView = binding.profileIconImageView
         val riotNameTextView:TextView = binding.riotNameTextView
         val summonerLevelTextView:TextView = binding.summonerLevelTextView
-        val handler = Handler(Looper.getMainLooper())
-        var iconSummoner:Drawable?
-        val summoner = Cache.actualSummoner
-        if(Cache.data[summoner?.profileIconId.toString()] == null){
-            Thread{
-                iconSummoner = Cache.setImage(
-                    "https://ddragon.leagueoflegends.com/cdn/${Cache.version}/img/profileicon/${summoner?.profileIconId}.png",
-                    summoner?.profileIconId.toString(),
-                    "image",
-                    Cache.version,
-                    dbHelper,
-                    context
-                )
-                handler.post{
-                    if (summoner?.riotName != null && tag != null && iconSummoner != null) {
-                        setProfile(profileIconImageView, riotNameTextView, summonerLevelTextView, summoner.riotName, summoner.tag, summoner.summonerLevel, iconSummoner!!)
-                    }
-                }
-            }.start()
-        }
-        else {
-            iconSummoner = Cache.data[summoner?.profileIconId.toString()]?.get("image")
-            if (summoner?.riotName != null && tag != null && iconSummoner != null) {
-                setProfile(profileIconImageView, riotNameTextView, summonerLevelTextView, summoner.riotName, summoner.tag, summoner.summonerLevel, iconSummoner!!)
-            }
-        }
+        val masteryPointsTextView:TextView = binding.masteryPointsTextView
+
         if(Cache.actualSummonerChampion.isEmpty()){
-            val callMasteryChampion = ApiClientLeagueMastery.api.getSummonerChampionsLanguageByPuuid(summoner?.puuid!!, Cache.langue.code)
+            val callMasteryChampion = ApiClientLeagueMastery.api.getSummonerChampionsLanguageByPuuid(Cache.actualSummoner?.puuid!!, Cache.langue.code)
             callMasteryChampion.enqueue(object : Callback<List<ChampionSummonerLanguage>>{
                 override fun onResponse(call: Call<List<ChampionSummonerLanguage>>, response: Response<List<ChampionSummonerLanguage>>) {
                     if(response.isSuccessful){
@@ -80,13 +59,18 @@ class ProfileFragment : Fragment() {
                         if(masteryList != null){
                             val sortedMasteryList = masteryList.sortedByDescending { it.championPoints ?: 0 }
                             Cache.actualSummonerChampion = sortedMasteryList
+                            for(championMas in sortedMasteryList){
+                                Cache.actualSummoner?.masteryPoints = Cache.actualSummoner?.masteryPoints?.plus(
+                                    championMas.championPoints!!
+                                )!!
+                            }
                             Cache.adapterM = MasteryAdapter(sortedMasteryList, dbHelper)
-                            val searchEditText = binding.searchChampionEditText
 
                             binding.masteryRecyclerView.apply {
                                 layoutManager = LinearLayoutManager(context)
                                 adapter = Cache.adapterM
                             }
+                            setProfileInViews(context, binding)
                         }
                     } else {
                         Toast.makeText(context, "Erreur ${response.code()}", Toast.LENGTH_SHORT).show()
@@ -104,8 +88,8 @@ class ProfileFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context)
                 adapter = Cache.adapterM
             }
+            setProfileInViews(context, binding)
         }
-
         championFiltre.addTextChangedListener(object : TextWatcher{
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
             }
@@ -119,16 +103,57 @@ class ProfileFragment : Fragment() {
         })
         return binding.root
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-    fun setProfile(profileIconImageView:ImageView, riotNameTextView:TextView, summonerLevelTextView:TextView, riotName:String, tag:String, summonerLevel:Int, iconSummoner:Drawable){
+    fun setProfile(profileIconImageView:ImageView, riotNameTextView:TextView, summonerLevelTextView:TextView, masteryPointsTextView:TextView, summoner: Summoner, iconSummoner:Drawable){
         profileIconImageView.setImageDrawable(iconSummoner)
-        riotNameTextView.text = "$riotName#$tag"
-        summonerLevelTextView.text = "Level: $summonerLevel"
+        riotNameTextView.text = "${summoner.riotName}#${summoner.tag}"
+        summonerLevelTextView.text = "Level: ${summoner.summonerLevel}"
+
+        masteryPointsTextView.text = "Maîtrise: ${formatNumber(summoner.masteryPoints)} pts"
     }
 
+    fun formatNumber(number: Int): String {
+        if (number >= 1_000_000) {
+            return String.format("%.1fM", number / 1_000_000.0).replace(Regex("\\.0+"), "")
+        } else if (number >= 1_000) {
+            return String.format("%.1fK", number / 1_000.0).replace(Regex("\\.0+"), "")
+        }
+        return number.toString()
+    }
+
+    fun setProfileInViews(context: Context, binding: FragmentProfileBinding){
+        val handler = Handler(Looper.getMainLooper())
+        val profileIconImageView = binding.profileIconImageView
+        val riotNameTextView = binding.riotNameTextView
+        val summonerLevelTextView = binding.summonerLevelTextView
+        val masteryPointsTextView = binding.masteryPointsTextView
+        val summoner = Cache.actualSummoner
+        var iconSummoner:Drawable?
+        if(Cache.data[summoner?.profileIconId.toString()] == null){
+            Thread{
+                iconSummoner = Cache.setImage(
+                    "https://ddragon.leagueoflegends.com/cdn/${Cache.version}/img/profileicon/${summoner?.profileIconId}.png",
+                    summoner?.profileIconId.toString(),
+                    "image",
+                    Cache.version,
+                    dbHelper,
+                    context
+                )
+                handler.post{
+                    if (summoner?.riotName != null && tag != null && iconSummoner != null) {
+                        setProfile(profileIconImageView, riotNameTextView, summonerLevelTextView, masteryPointsTextView, summoner, iconSummoner!!)
+                    }
+                }
+            }.start()
+        }
+        else {
+            iconSummoner = Cache.data[summoner?.profileIconId.toString()]?.get("image")
+            if (summoner?.riotName != null && tag != null && iconSummoner != null) {
+                setProfile(profileIconImageView, riotNameTextView, summonerLevelTextView, masteryPointsTextView, summoner, iconSummoner!!)
+            }
+        }
+    }
 }

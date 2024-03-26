@@ -102,6 +102,7 @@ class Acceuil : AppCompatActivity() {
                                         response: Response<List<ChampionSummonerDefault>>
                                     ) {
                                         progressBar.visibility = View.GONE
+
                                         Cache.actualSummoner = summoner
                                         val intent = Intent(context, MainActivity::class.java)
                                         startActivity(intent)

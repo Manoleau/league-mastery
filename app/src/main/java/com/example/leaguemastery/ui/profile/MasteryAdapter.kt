@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leaguemastery.Cache
 import com.example.leaguemastery.DB.DBHelper
@@ -41,18 +42,12 @@ class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>, pr
         if(Cache.data[mastery.champion.key.toString()] != null && Cache.data[mastery.champion.key.toString()]!!.containsKey("image_icon")) {
             val championIcon = Cache.data[mastery.champion.key.toString()]!!["image_icon"]
             setAll(holder, mastery, championIcon!!, position)
+            holder.itemView.setOnClickListener{
+                Toast.makeText(holder.context, mastery.champion.name, Toast.LENGTH_SHORT).show()
+            }
         }
     }
-
-
     fun setAll(holder:MasteryViewHolder, mastery:ChampionSummonerLanguage, championIcon:Drawable, position:Int){
-        //if (position == 0){
-        //    holder.itemView.setBackgroundResource(R.drawable.bottom_border)
-        //} else if(position == itemCount-1){
-        //    holder.itemView.setBackgroundResource(R.drawable.bottom_top_border)
-        //} else {
-        //    holder.itemView.setBackgroundResource(R.drawable.top_border)
-        // }
         holder.championIcon.setImageDrawable(championIcon)
         holder.championName.text = mastery.champion.name
         when (mastery.championLevel) {
@@ -101,8 +96,10 @@ class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>, pr
         if (name.isEmpty()) {
             filteredMasteryList = masteryList
         } else {
+
             filteredMasteryList = masteryList.filter {
-                it.champion.name.toLowerCase().contains(name.toLowerCase())
+                it.champion.name.toLowerCase().contains(name.toLowerCase() ) or
+                it.champion.name_id!!.toLowerCase().contains(name.toLowerCase())
             }
         }
         notifyDataSetChanged()
