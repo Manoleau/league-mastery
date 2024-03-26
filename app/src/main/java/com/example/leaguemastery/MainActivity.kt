@@ -1,6 +1,7 @@
 package com.example.leaguemastery
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -9,17 +10,22 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.leaguemastery.API.Update
 import com.example.leaguemastery.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navView:BottomNavigationView
+    lateinit var firebaseAuth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         navView = binding.navView
 
+        firebaseAuth = FirebaseAuth.getInstance()
+
+        Log.i("GGEZ", firebaseAuth.currentUser?.uid.toString())
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         navView.setupWithNavController(navController)
     }
@@ -36,8 +42,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         Update.listViewUpdate.remove(navView)
+        firebaseAuth.signOut()
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -51,8 +58,6 @@ class MainActivity : AppCompatActivity() {
                 Cache.actualSummoner?.let { updateSummoner(it.puuid) }
                 return true
             }
-
-
             else -> return super.onOptionsItemSelected(item)
         }
     }

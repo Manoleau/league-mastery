@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -20,12 +21,14 @@ import com.example.leaguemastery.entity.Language
 import com.example.leaguemastery.entity.RoleLanguage
 import com.example.leaguemastery.entity.Summoner
 import com.example.leaguemastery.ui.profile.MasteryAdapter
+import com.google.firebase.auth.FirebaseAuth
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class Acceuil : AppCompatActivity() {
     private lateinit var dbHelper: DBHelper
+    lateinit var firebaseAuth:FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_acceuil)
@@ -34,7 +37,6 @@ class Acceuil : AppCompatActivity() {
         dbHelper = DBHelper(this, null)
         val context = this
         val riotAccText = findViewById<AutoCompleteTextView>(R.id.search_field)
-
         if(Cache.version == ""){
             val callVersion = ApiClientLolDataDragon.api.getVersions()
             callVersion.enqueue(object : Callback<List<String>>{
@@ -58,7 +60,6 @@ class Acceuil : AppCompatActivity() {
         for (language in languages){
             languagesStr.add(language.displayName)
         }
-
         val spinner: Spinner = findViewById(R.id.language_selector)
         spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, languagesStr)
 
@@ -73,7 +74,10 @@ class Acceuil : AppCompatActivity() {
         }
 
         setAutoCompleteRiotAcc(riotAccText)
+
+        firebaseAuth = FirebaseAuth.getInstance()
         btn_search.setOnClickListener {
+            btn_search.isEnabled = false
             Cache.actualSummonerChampion = ArrayList()
             Cache.adapterM = MasteryAdapter(ArrayList(), dbHelper)
             Cache.actualSummoner = null
@@ -102,15 +106,16 @@ class Acceuil : AppCompatActivity() {
                                         response: Response<List<ChampionSummonerDefault>>
                                     ) {
                                         progressBar.visibility = View.GONE
-
                                         Cache.actualSummoner = summoner
-                                        val intent = Intent(context, MainActivity::class.java)
-                                        startActivity(intent)
+                                        startActivity(Intent(context, MainActivity::class.java))
+
+                                        btn_search.isEnabled = true
                                     }
                                     override fun onFailure(
                                         call: Call<List<ChampionSummonerDefault>>,
                                         t: Throwable
                                     ) {
+                                        btn_search.isEnabled = true
                                         Toast.makeText(context, "Aucune connexion internet", Toast.LENGTH_SHORT).show()
                                     }
                                 })
@@ -121,13 +126,14 @@ class Acceuil : AppCompatActivity() {
                         }
                     }
                     override fun onFailure(call: Call<Summoner>, t: Throwable) {
-                        t.message
+                        btn_search.isEnabled = true
                         Toast.makeText(context, "Aucune connexion internet", Toast.LENGTH_SHORT).show()
                         progressBar.visibility = View.GONE
 
                     }
                 })
             } else {
+                btn_search.isEnabled = true
                 Toast.makeText(context, "Joueur introuvable", Toast.LENGTH_SHORT).show()
                 progressBar.visibility = View.GONE
             }
