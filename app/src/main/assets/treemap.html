@@ -4,12 +4,17 @@
     <title>Treemap Example</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
-        /* Style pour le Treemap */
         * {
             margin: 0;
             padding: 0;
-            background-color: #101010;
         }
+        #treemap{
+            background-color: #D1A760;
+            color: #fff;
+        }
+        /* #treemap svg g image {
+            opacity: 0.5;
+        } */
         .node {
             border: solid 1px white;
             font: 10px sans-serif;
@@ -18,48 +23,123 @@
             position: absolute;
             text-indent: 2px;
         }
+        #championDetails {
+            color: #101010;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            transform: translateY(-20px);
+            pointer-events: none;
+        }
+        #championDetails.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        #championDetails img {
+            display: block;
+            margin: auto;
+        }
+        #championDetails span{
+            display: table;
+            margin: 0 auto;
+        }
+
+
     </style>
 </head>
 <body>
 <div id="treemap" style="width: 100vw; height: 100vh;"></div>
+<div id="championDetails" style="display:none; position: absolute; background-color: #fff; padding: 10px; border-radius: 5px;">
+</div>
 
 <script>
-        var data = {
-            "screen": {
-                "height":300,
-                "width": 100
-            },
-            "data":{
-                "name": "Root",
-                "children": [
-                    { "name": "A", "value": 100 },
-                    { "name": "B", "value": 50 },
+        function convertDataLolToDataTreeMap(json){
+            const res = {}
+            res["screen"] = json.screen
+            res["data"] = {
+                "name":"Champion",
+                "children":[
                     {
-                        "name": "C", "children": [
-                            { "name": "C1", "value": 25 },
-                            { "name": "C2", "value": 75 }
+                        "name":"7",
+                        "children":[
+
                         ]
                     },
-                    { "name": "D", "value": 80 }
+                    {
+                        "name":"6",
+                        "children":[
+
+                        ]
+                    },
+                    {
+                        "name":"5",
+                        "children":[
+
+                        ]
+                    },
+                    {
+                        "name":"4",
+                        "children":[
+
+                        ]
+                    },
+                    {
+                        "name":"3",
+                        "children":[
+
+                        ]
+                    },
+                    {
+                        "name":"2",
+                        "children":[
+
+                        ]
+                    },
+                    {
+                        "name":"1",
+                        "children":[
+
+                        ]
+                    },
                 ]
             }
+            for(const mastery of json.data){
+                res.data.children[7-mastery.championLevel].children.push({
+                    "name":mastery.champion.name,
+                    "value":mastery.championPoints,
+                    "imageUrl":`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-splashes/${mastery.champion.key}/${mastery.champion.key}000.jpg`,
+                    "level": mastery.championLevel
+                })
+            }
+            return res
+        }
 
-        };
 
         function createTreeMap(json) {
-            const data = json.data
+
+            const data = convertDataLolToDataTreeMap(json)
             const width = json.screen.width;
             const height = json.screen.height;
+            let hideDetailsTimer;
 
             var treemap = d3.treemap()
                 .size([width, height])
                 .padding(1);
 
-            var root = d3.hierarchy(data)
+            var root = d3.hierarchy(data.data)
                 .sum(function(d) { return d.value; })
                 .sort(function(a, b) { return b.height - a.height || b.value - a.value; });
 
+
             treemap(root);
+            var colorScale = d3.scaleOrdinal()
+                .domain(["7", "6", "5", "4", "3", "2", "1"]) // Liste des rôles
+                .range(["#13738D", "#8E4AB6", "#C24552", "#A47218", "#8b5800", "#713f00", "#582600"]); // Couleurs correspondantes
+
 
             var svg = d3.select("#treemap").append("svg")
                 .attr("width", width)
@@ -72,17 +152,45 @@
                 .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
             leaf.append("rect")
-                .attr("fill", d => d.data.value > 50 ? "#6baed6" : "#9ecae1")
+                .attr("fill", d => colorScale(d.parent.data.name)) // Utilise le nom du rôle pour la couleur
                 .attr("width", d => d.x1 - d.x0)
-                .attr("height", d => d.y1 - d.y0);
+                .attr("height", d => d.y1 - d.y0)
+                .on("click", function(event, d) {
+                    const detailsDiv = document.getElementById("championDetails");
 
-            leaf.append("text")
-                .attr("x", 5) // Légèrement décalé pour la lisibilité
-                .attr("y", "1.1em") // Alignement vertical pour la lisibilité
-                .text(d => d.data.name);
+                    detailsDiv.innerHTML = `<span class="champion">${d.data.name}</span><br><img src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-postgame/global/default/mastery-${d.data.level}.png"><br><span>${d.data.value.toLocaleString()} pts</span>`;
+                    detailsDiv.style.display = "block";
+                    detailsDiv.style.left = `${event.pageX + 10}px`;
+                    detailsDiv.style.top = `${event.pageY + 10}px`;
+                });
+
+            leaf.append("image")
+                .attr("xlink:href", d => d.data.imageUrl)
+                .attr("width", d => d.x1 - d.x0)
+                .attr("height", d => d.y1 - d.y0)
+                .attr("opacity", 0.6)
+                .attr("preserveAspectRatio", "xMidYMid slice")
+                .attr("transform", d => `translate(0,0)`)
+                .on("click", function(event, d) {
+                    const treemapDiv = document.getElementById("treemap");
+                    const detailsDiv = document.getElementById("championDetails");
+
+                    const treemapWidth = treemapDiv.offsetWidth;
+                    const treemapHeight = treemapDiv.offsetHeight;
+
+                    detailsDiv.innerHTML = `<span class="champion">${d.data.name}</span><br><img src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-postgame/global/default/mastery-${d.data.level}.png"><br><span>${d.data.value.toLocaleString()} pts</span>`;
+                    detailsDiv.style.display = "block";
+                    detailsDiv.style.left = `${(treemapWidth - detailsDiv.offsetWidth) / 2}px`;
+                    detailsDiv.style.top = `${(treemapHeight - detailsDiv.offsetHeight) / 2}px`;
+                    detailsDiv.style.width = `${width / 3}px`;
+                    clearTimeout(hideDetailsTimer);
+
+                    detailsDiv.classList.add("visible");
+                    hideDetailsTimer = setTimeout(function() {
+                        detailsDiv.classList.remove("visible");
+                    }, 5000);
+                });
         }
-
-        createTreeMap(data);
     </script>
 </body>
 </html>

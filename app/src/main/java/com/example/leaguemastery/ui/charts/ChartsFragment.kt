@@ -1,22 +1,26 @@
 package com.example.leaguemastery.ui.charts
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.DisplayMetrics
+import android.util.Log
+import android.view.Display
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.view.WindowManager
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.example.leaguemastery.R
+import com.example.leaguemastery.Cache
 import com.example.leaguemastery.databinding.FragmentChartsBinding
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.gson.Gson
+
 
 class ChartsFragment : Fragment() {
 
@@ -25,6 +29,7 @@ class ChartsFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    private lateinit var screensize: Display
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,7 +39,7 @@ class ChartsFragment : Fragment() {
 
         _binding = FragmentChartsBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
+        val context = root.context
 
         val list:ArrayList<BarEntry> = ArrayList()
 
@@ -46,15 +51,26 @@ class ChartsFragment : Fragment() {
 
         val barDataSet = BarDataSet(list, "List")
 
+        val wm = context!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        screensize = wm.defaultDisplay
         barDataSet.setColors(ColorTemplate.MATERIAL_COLORS, 255)
 
         barDataSet.valueTextColor = Color.WHITE
+
+
         val webView = binding.webview
         webView.settings.javaScriptEnabled = true
+
+        val jsonData = convertListToJson(Cache.actualSummonerChampion)
+        val script = "createTreeMap($jsonData);"
+
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                webView.evaluateJavascript(script, null)
+            }
+        }
         webView.loadUrl("file:///android_asset/treemap.html")
-
-
-
 
         return root
     }
@@ -65,8 +81,15 @@ class ChartsFragment : Fragment() {
     }
 
     fun convertListToJson(champions: List<ChampionSummonerLanguage>): String {
-        val gson = Gson()
+        val displayMetrics = DisplayMetrics()
+        @Suppress("DEPRECATION")
+        (activity?.windowManager?.defaultDisplay)?.getMetrics(displayMetrics)
+        val screenWidthInPixels = displayMetrics.widthPixels / 3 + 50
+        val screenHeightInPixels = displayMetrics.heightPixels / 3 - 30
 
-        return gson.toJson(champions)
+        val gson = Gson()
+        var res = gson.toJson(champions)
+        res = "{screen:{\"height\":$screenHeightInPixels,\"width\": $screenWidthInPixels},\"data\":$res}"
+        return res
     }
 }
