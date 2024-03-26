@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "76655541072",
+    "project_id": "leaguemastery",
+    "storage_bucket": "leaguemastery.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76655541072:android:9c27e5a5a2e4730e4a4a55",
+        "android_client_info": {
+          "package_name": "com.example.leaguemastery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBql9G2uq6djqiQ-suE-SoDCl9sP-0nbZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
