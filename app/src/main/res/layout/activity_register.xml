@@ -97,10 +97,12 @@
         android:textColorHint="#FFFFFF"
         android:textSize="15sp" />
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_marginTop="40dp"
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/submit_btn"
@@ -109,31 +111,25 @@
             android:layout_centerInParent="true"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/btn_custom"
             android:text="S'inscrire"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/black"
+            android:fontFamily="@font/league"/>
 
-        <TextView
+        <Button
             android:id="@+id/Already_link"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="103dp"
-            android:layout_marginRight="103dp"
-            android:layout_marginBottom="31dp"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="30dp"
+            android:background="@drawable/btn_custom"
+            android:fontFamily="@font/league"
             android:text="Se connecter"
-            android:textColor="@android:color/holo_green_dark"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="0.425"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.985" />
+            android:textColor="@android:color/black" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </LinearLayout>

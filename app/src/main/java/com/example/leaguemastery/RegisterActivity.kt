@@ -1,6 +1,7 @@
 package com.example.leaguemastery
 
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
@@ -24,7 +25,7 @@ class RegisterActivity : AppCompatActivity() {
     lateinit var userName:EditText
     lateinit var password:EditText
     lateinit var password1:EditText
-    lateinit var AccountExists:TextView
+    lateinit var AccountExists:Button
     lateinit var register:Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +39,7 @@ class RegisterActivity : AppCompatActivity() {
         password = findViewById<View>(R.id.Password2) as EditText
         password1 = findViewById<View>(R.id.pass2) as EditText
         register = findViewById<View>(R.id.submit_btn) as Button
-        AccountExists = findViewById<View>(R.id.Already_link) as TextView
+        AccountExists = findViewById<View>(R.id.Already_link) as Button
         loadingBar = ProgressDialog(this)
         //When user has  an account already he should be sent to login activity.
         AccountExists.setOnClickListener { sendUserToLoginActivity() }
@@ -105,11 +106,6 @@ class RegisterActivity : AppCompatActivity() {
         After successfull registration send user to Login page.
      */
     private fun sendUserToLoginActivity() {
-        //This is to send user to Login Activity.
-        val loginIntent = Intent(
-            this@RegisterActivity,
-            LoginActivity::class.java
-        )
-        startActivity(loginIntent)
+        startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
     }
 }
