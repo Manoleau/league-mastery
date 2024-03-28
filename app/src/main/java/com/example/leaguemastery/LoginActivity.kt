@@ -23,7 +23,6 @@ class LoginActivity : AppCompatActivity() {
     lateinit var password:EditText
     lateinit var login: Button
     lateinit var register: TextView
-    lateinit var forgotPassword:TextView
     var currentUser: FirebaseUser? = null
 
     lateinit var mAuth: FirebaseAuth
@@ -40,13 +39,11 @@ class LoginActivity : AppCompatActivity() {
         password = findViewById<View>(R.id.pwd) as EditText
         login = findViewById<View>(R.id.login_btn) as Button
         register = findViewById<View>(R.id.registerLink) as TextView
-        forgotPassword = findViewById<View>(R.id.ForgetPassword) as TextView
         mAuth = FirebaseAuth.getInstance()
         loadingBar = ProgressDialog(this)
         currentUser = mAuth.currentUser
         login.setOnClickListener{ AllowUserToLogin() }
         register.setOnClickListener { sendUserToRegister() }
-        forgotPassword.setOnClickListener { resetPasswordUser() }
         if (supportActionBar != null) {
             supportActionBar!!.hide()
         }

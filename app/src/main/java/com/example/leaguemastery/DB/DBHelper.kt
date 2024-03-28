@@ -109,7 +109,18 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         return res
     }
 
-
+    fun updateSummoner(riotAccDB: String, puuidDB: String, profileIconId:Int){
+        val db = this.writableDatabase
+        val valuesSummCache = ContentValues()
+        valuesSummCache.put(riotAcc, riotAccDB)
+        val valuesFavs = ContentValues()
+        valuesFavs.put(riotAcc, riotAccDB)
+        valuesFavs.put(image, getImage(profileIconId.toString(), "image"))
+        val selection = "$puuid = ?"
+        val selectionArgs = arrayOf(puuidDB)
+        db.update(TABLE_NAME_RIOT_ACC, valuesSummCache, selection, selectionArgs)
+        db.update(TABLE_NAME_FAV_ACC, valuesFavs, selection, selectionArgs)
+    }
 
     fun addSummoner(riotAccDB : String, puuidDB:String){
         if(getSummoner(riotAccDB) == null){

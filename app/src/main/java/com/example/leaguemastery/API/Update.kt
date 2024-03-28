@@ -1,10 +1,12 @@
 package com.example.leaguemastery.API
 
+import android.app.ProgressDialog
 import android.content.Context
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.leaguemastery.AcceuilRecherche
 import com.example.leaguemastery.Cache
 import com.example.leaguemastery.entity.ChampionSummonerDefault
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
@@ -19,11 +21,17 @@ class Update {
     companion object{
         val listViewUpdate: ArrayList<View> = ArrayList()
         var isBackButtonDisabled = false
-        fun updateSummoner(puuid:String, context: Context, progressBar: ProgressBar){
-            if(!Cache.updating){
-                progressBar.visibility = View.VISIBLE
+        lateinit var loadingBar: ProgressDialog
+        var updating: Boolean = false
 
-                Cache.updating = true;
+        fun updateSummoner(puuid:String, context: Context){
+            if(!Cache.updating){
+                loadingBar = ProgressDialog(context)
+                loadingBar.setTitle("Mise à jour en cours...")
+                loadingBar.setMessage("Veillez patienter")
+                loadingBar.setCancelable(false)
+                loadingBar.show()
+                updating = true;
                 isBackButtonDisabled = true
                 listViewUpdate.forEach { it.isEnabled = false }
                 Cache.adapterM?.loadMastery(ArrayList())
@@ -40,24 +48,27 @@ class Update {
                             ) {
                                 listViewUpdate.forEach { it.isEnabled = true }
                                 isBackButtonDisabled = false
-                                progressBar.visibility = View.GONE
+                                loadingBar.dismiss()
+                                ProfileFragment.setProfileInViews(context)
                                 setChampionMastery(context)
                             }
 
                             override fun onFailure(call: Call<List<ChampionSummonerDefault>>, t: Throwable) {
+                                loadingBar.dismiss()
                                 Toast.makeText(context, "Une erreur s'est produite", Toast.LENGTH_SHORT).show()
                                 listViewUpdate.forEach { it.isEnabled = true }
                                 isBackButtonDisabled = false
-                                progressBar.visibility = View.GONE
+                                updating = false;
                             }
                         })
                     }
 
                     override fun onFailure(call: Call<Summoner>, t: Throwable) {
+                        loadingBar.dismiss()
                         Toast.makeText(context, "Une erreur s'est produite", Toast.LENGTH_SHORT).show()
                         listViewUpdate.forEach { it.isEnabled = true }
                         isBackButtonDisabled = false
-                        progressBar.visibility = View.GONE
+                        updating = false;
                     }
                 })
             }
@@ -81,16 +92,18 @@ class Update {
                                 adapter = Cache.adapterM
                             }
                             ProfileFragment.setProfileInViews(context)
+                            ProfileFragment.dbHelper!!.updateSummoner("${Cache.actualSummoner?.riotName}#${Cache.actualSummoner?.tag}", Cache.actualSummoner!!.puuid, Cache.actualSummoner!!.profileIconId)
+
                             Toast.makeText(context, "Mise à jour finie", Toast.LENGTH_SHORT).show()
                         }
                     } else {
                         Toast.makeText(context, "Erreur ${response.code()}", Toast.LENGTH_SHORT).show()
                     }
-                    Cache.updating = false
+                    updating = false
                 }
                 override fun onFailure(call: Call<List<ChampionSummonerLanguage>>, t: Throwable) {
                     Toast.makeText(context, "Une erreur s'est produite", Toast.LENGTH_SHORT).show()
-                    Cache.updating = false
+                    updating = false
                 }
             })
         }

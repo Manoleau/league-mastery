@@ -53,7 +53,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="8dp"
                     android:text="Riot Name"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:textColor="?android:textColor"
                     android:textStyle="bold" />
                 <TextView

@@ -35,7 +35,8 @@ class FavorisAdapter(private var favorisList: List<FavDB>):
         holder.profileIcon.setImageDrawable(favoris.image)
         holder.riotName.text = favoris.riotacc
         holder.itemView.setOnClickListener{
-
+            AcceuilRecherche.riotAccText.setText(favoris.riotacc)
+            AcceuilRecherche.searchPlayer(holder.context)
         }
     }
     fun loadMastery(newfavorisList: List<FavDB>) {

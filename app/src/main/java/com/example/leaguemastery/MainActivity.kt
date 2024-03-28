@@ -29,8 +29,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateSummoner(puuid:String) {
-        val progressBar = binding.progressBaMain
-        Update.updateSummoner(puuid, binding.root.context, progressBar)
+        Update.updateSummoner(puuid, binding.root.context)
     }
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
