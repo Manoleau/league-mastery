@@ -3,10 +3,8 @@ package com.example.leaguemastery.API
 import android.app.ProgressDialog
 import android.content.Context
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.leaguemastery.AcceuilRecherche
 import com.example.leaguemastery.Cache
 import com.example.leaguemastery.entity.ChampionSummonerDefault
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
@@ -31,7 +29,7 @@ class Update {
                 loadingBar.setMessage("Veillez patienter")
                 loadingBar.setCancelable(false)
                 loadingBar.show()
-                updating = true;
+                updating = true
                 isBackButtonDisabled = true
                 listViewUpdate.forEach { it.isEnabled = false }
                 Cache.adapterM?.loadMastery(ArrayList())
@@ -58,7 +56,7 @@ class Update {
                                 Toast.makeText(context, "Une erreur s'est produite", Toast.LENGTH_SHORT).show()
                                 listViewUpdate.forEach { it.isEnabled = true }
                                 isBackButtonDisabled = false
-                                updating = false;
+                                updating = false
                             }
                         })
                     }
@@ -68,7 +66,7 @@ class Update {
                         Toast.makeText(context, "Une erreur s'est produite", Toast.LENGTH_SHORT).show()
                         listViewUpdate.forEach { it.isEnabled = true }
                         isBackButtonDisabled = false
-                        updating = false;
+                        updating = false
                     }
                 })
             }

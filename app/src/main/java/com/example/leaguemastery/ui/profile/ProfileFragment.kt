@@ -141,6 +141,7 @@ class ProfileFragment : Fragment() {
         var masteryPointsTextView:TextView? = null
         var dbHelper:DBHelper? = null
         var masteryRecyclerView:RecyclerView? = null
+        @SuppressLint("SetTextI18n")
         fun setProfile(iconSummoner: Drawable){
             profileIconImageView?.setImageDrawable(iconSummoner)
             riotNameTextView?.text = "${Cache.actualSummoner?.riotName}#${Cache.actualSummoner?.tag}"

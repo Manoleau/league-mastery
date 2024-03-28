@@ -9,11 +9,11 @@ object RetrofitHelperLolDataDragon {
 
     private const val baseUrl = "https://ddragon.leagueoflegends.com/"
 
-    val logging = HttpLoggingInterceptor().apply {
+    private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    val client = OkHttpClient.Builder()
+    private val client = OkHttpClient.Builder()
         .addInterceptor(logging)
         .build()
 

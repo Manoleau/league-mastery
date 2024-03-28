@@ -1,15 +1,14 @@
 package com.example.leaguemastery
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leaguemastery.DB.FavDB
-import com.example.leaguemastery.entity.ChampionSummonerLanguage
-import com.example.leaguemastery.ui.profile.MasteryAdapter
 
 class FavorisAdapter(private var favorisList: List<FavDB>):
     RecyclerView.Adapter<FavorisAdapter.FavorisViewHolder>(){
@@ -17,7 +16,7 @@ class FavorisAdapter(private var favorisList: List<FavDB>):
     class FavorisViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val profileIcon: ImageView = view.findViewById(R.id.profileIconImageView)
         val riotName: TextView = view.findViewById(R.id.riotNameFavTextView)
-        val context = view.context
+        val context: Context = view.context
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavorisViewHolder {
@@ -39,6 +38,7 @@ class FavorisAdapter(private var favorisList: List<FavDB>):
             AcceuilRecherche.searchPlayer(holder.context)
         }
     }
+    @SuppressLint("NotifyDataSetChanged")
     fun loadMastery(newfavorisList: List<FavDB>) {
         favorisList = newfavorisList
         notifyDataSetChanged()

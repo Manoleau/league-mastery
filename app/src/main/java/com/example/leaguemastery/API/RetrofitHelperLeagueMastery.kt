@@ -9,11 +9,11 @@ object RetrofitHelperLeagueMastery {
 
     private const val baseUrl = "http://manolodev.ddns.net:3000/"
 
-    val logging = HttpLoggingInterceptor().apply {
+    private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    val client = OkHttpClient.Builder()
+    private val client = OkHttpClient.Builder()
         .addInterceptor(logging)
         .build()
 

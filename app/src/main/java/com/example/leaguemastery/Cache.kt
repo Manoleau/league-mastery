@@ -8,7 +8,6 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.os.Build
 import android.util.Base64
 import android.util.Log
 import com.example.leaguemastery.API.ApiClientLeagueMastery
@@ -121,19 +120,13 @@ class Cache {
         }
         fun isOnline(context: Context): Boolean {
             val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val activeNetwork = connectivityManager.activeNetwork ?: return false
-                val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
-                return when {
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                    else -> false
-                }
-            } else {
-                // Pour les versions antérieures à Android M
-                val networkInfo = connectivityManager.activeNetworkInfo ?: return false
-                return networkInfo.isConnected
+            val activeNetwork = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+            return when {
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
             }
         }
     }

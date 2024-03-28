@@ -1,10 +1,8 @@
 package com.example.leaguemastery.ui.charts
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.Display
 import android.view.LayoutInflater
 import android.view.View
@@ -13,13 +11,9 @@ import android.view.WindowManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
-import com.example.leaguemastery.API.Update
 import com.example.leaguemastery.Cache
 import com.example.leaguemastery.databinding.FragmentChartsBinding
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.gson.Gson
 
 
@@ -66,13 +60,11 @@ class ChartsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         val webView = binding.webview
-        if(webView != null){
-            webView.loadUrl("about:blank")
-        }
+        webView.loadUrl("about:blank")
         _binding = null
     }
 
-    fun convertListToJson(champions: List<ChampionSummonerLanguage>): String {
+    private fun convertListToJson(champions: List<ChampionSummonerLanguage>): String {
         val displayMetrics = DisplayMetrics()
         @Suppress("DEPRECATION")
         (activity?.windowManager?.defaultDisplay)?.getMetrics(displayMetrics)

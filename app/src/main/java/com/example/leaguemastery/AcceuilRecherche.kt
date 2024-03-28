@@ -27,7 +27,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class AcceuilRecherche : AppCompatActivity() {
-    lateinit var firebaseAuth:FirebaseAuth
+    private lateinit var firebaseAuth:FirebaseAuth
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -124,7 +124,7 @@ class AcceuilRecherche : AppCompatActivity() {
         super.onDestroy()
         //Cache.saveInPhone(dbHelper)
     }
-    fun setAutoCompleteRiotAcc(autoCompleteTextView:AutoCompleteTextView){
+    private fun setAutoCompleteRiotAcc(autoCompleteTextView:AutoCompleteTextView){
         val summonersDB = ArrayList<String>()
         for (summ in dbHelper.getAllSummoner()){
             summonersDB.add(summ.riotacc)
@@ -153,11 +153,10 @@ class AcceuilRecherche : AppCompatActivity() {
 
             if(tmp.size == 2){
                 val summoner = dbHelper.getSummoner(riotAccInText.toString())
-                val callSummoner:Call<Summoner>
-                if(summoner != null){
-                    callSummoner = ApiClientLeagueMastery.api.getSummonerByPuuid(summoner.puuid)
+                val callSummoner:Call<Summoner> = if(summoner != null){
+                    ApiClientLeagueMastery.api.getSummonerByPuuid(summoner.puuid)
                 } else {
-                    callSummoner = ApiClientLeagueMastery.api.getSummonerByRiotAcc(tmp[0], tmp[1])
+                    ApiClientLeagueMastery.api.getSummonerByRiotAcc(tmp[0], tmp[1])
                 }
                 callSummoner.enqueue(object :Callback<Summoner>{
                     override fun onResponse(call: Call<Summoner>, response: Response<Summoner>) {
