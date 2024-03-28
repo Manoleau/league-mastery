@@ -2,9 +2,9 @@ package com.example.leaguemastery.entity
 
 class RoleDefault(
     _id:String,
-    imageIcon: String,
-    val defaultName: String
+    image_icon: String,
+    val default_name: String
 ) :
         Role(
-            _id, imageIcon
+            _id, image_icon
         )
