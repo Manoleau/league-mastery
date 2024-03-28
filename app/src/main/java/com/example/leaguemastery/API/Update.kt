@@ -1,11 +1,8 @@
 package com.example.leaguemastery.API
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.view.View
-import android.widget.ImageView
 import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.leaguemastery.Cache
@@ -78,7 +75,7 @@ class Update {
                         if(masteryList != null){
                             val sortedMasteryList = masteryList.sortedByDescending { it.championPoints ?: 0 }
                             Cache.actualSummonerChampion = sortedMasteryList
-                            Cache.adapterM = MasteryAdapter(Cache.actualSummonerChampion, ProfileFragment.dbHelper!!)
+                            Cache.adapterM = MasteryAdapter(Cache.actualSummonerChampion)
                             ProfileFragment.masteryRecyclerView?.apply {
                                 layoutManager = LinearLayoutManager(context)
                                 adapter = Cache.adapterM

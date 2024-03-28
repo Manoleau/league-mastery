@@ -1,6 +1,5 @@
 package com.example.leaguemastery
 
-import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -12,12 +11,13 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.leaguemastery.API.ApiClientLeagueMastery
 import com.example.leaguemastery.API.ApiClientLolDataDragon
 import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.entity.ChampionSummonerDefault
 import com.example.leaguemastery.entity.Language
-import com.example.leaguemastery.entity.RoleLanguage
 import com.example.leaguemastery.entity.Summoner
 import com.example.leaguemastery.ui.profile.MasteryAdapter
 import com.google.firebase.auth.FirebaseAuth
@@ -40,6 +40,12 @@ class AcceuilRecherche : AppCompatActivity() {
 
         dbHelper = DBHelper(this, null)
         if(Cache.isOnline(this@AcceuilRecherche)){
+            firebaseAuth = FirebaseAuth.getInstance()
+            val currentUser = firebaseAuth.currentUser
+            var uid = "0"
+            if(currentUser != null){
+                uid = currentUser.uid
+            }
             if(Cache.version == ""){
                 val callVersion = ApiClientLolDataDragon.api.getVersions()
                 callVersion.enqueue(object : Callback<List<String>>{
@@ -64,7 +70,6 @@ class AcceuilRecherche : AppCompatActivity() {
                 languagesStr.add(language.displayName)
             }
             spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, languagesStr)
-
             spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                     Cache.langue = languages[position]
@@ -74,14 +79,18 @@ class AcceuilRecherche : AppCompatActivity() {
                     Cache.langue = Language.FR_FR
                 }
             }
+            val favoris = dbHelper.getFavs(uid, this@AcceuilRecherche)
+            findViewById<RecyclerView>(R.id.favorisRecyclerView).apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = FavorisAdapter(favoris)
+            }
 
             setAutoCompleteRiotAcc(riotAccText)
 
-            firebaseAuth = FirebaseAuth.getInstance()
             btn_search.setOnClickListener {
                 btn_search.isEnabled = false
                 Cache.actualSummonerChampion = ArrayList()
-                Cache.adapterM = MasteryAdapter(ArrayList(), dbHelper)
+                Cache.adapterM = MasteryAdapter(ArrayList())
                 Cache.actualSummoner = null
                 progressBar.visibility = View.VISIBLE
                 val riotAccInText = riotAccText.text
@@ -110,7 +119,6 @@ class AcceuilRecherche : AppCompatActivity() {
                                             progressBar.visibility = View.GONE
                                             Cache.actualSummoner = summoner
                                             startActivity(Intent(context, MainActivity::class.java))
-
                                             btn_search.isEnabled = true
                                         }
                                         override fun onFailure(
@@ -118,7 +126,7 @@ class AcceuilRecherche : AppCompatActivity() {
                                             t: Throwable
                                         ) {
                                             btn_search.isEnabled = true
-                                            Toast.makeText(context, "Aucune connexion internet", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Essayez avec une autre connexion", Toast.LENGTH_SHORT).show()
                                         }
                                     })
                                 }
@@ -129,7 +137,7 @@ class AcceuilRecherche : AppCompatActivity() {
                         }
                         override fun onFailure(call: Call<Summoner>, t: Throwable) {
                             btn_search.isEnabled = true
-                            Toast.makeText(context, "Aucune connexion internet", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Essayez avec une autre connexion", Toast.LENGTH_SHORT).show()
                             progressBar.visibility = View.GONE
 
                         }
@@ -146,21 +154,6 @@ class AcceuilRecherche : AppCompatActivity() {
             riotAccText.isEnabled = false
             spinner.isEnabled = false
         }
-
-    }
-    fun setRoles(context: Context, language: Language){
-        ApiClientLeagueMastery.api.getRolesLanguage(language.code).enqueue(object : Callback<List<RoleLanguage>>{
-            override fun onResponse(
-                call: Call<List<RoleLanguage>>,
-                response: Response<List<RoleLanguage>>
-            ) {
-
-            }
-
-            override fun onFailure(call: Call<List<RoleLanguage>>, t: Throwable) {
-                Toast.makeText(context, "Aucune connexion internet", Toast.LENGTH_SHORT).show()
-            }
-        })
     }
     override fun onStart() {
         super.onStart()
@@ -170,6 +163,17 @@ class AcceuilRecherche : AppCompatActivity() {
         super.onResume()
         val riotAccText = findViewById<AutoCompleteTextView>(R.id.search_field)
         setAutoCompleteRiotAcc(riotAccText)
+        firebaseAuth = FirebaseAuth.getInstance()
+        val currentUser = firebaseAuth.currentUser
+        var uid = "0"
+        if(currentUser != null){
+            uid = currentUser.uid
+        }
+        val favoris = dbHelper.getFavs(uid, this@AcceuilRecherche)
+        findViewById<RecyclerView>(R.id.favorisRecyclerView).apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = FavorisAdapter(favoris)
+        }
     }
     override fun onDestroy() {
         super.onDestroy()

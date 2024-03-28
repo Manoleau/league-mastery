@@ -54,7 +54,11 @@ class Cache {
                     }
                     return image
                 } else {
-                    return dbHelper.getImage(context, key, key2)
+                    val image = dbHelper.getImage(key, key2)
+                    if (image != null){
+                        return base64ToDrawable(image, context)
+                    }
+                    return null
                 }
             } catch (e: Exception) {
                 Log.e("Erreur Image", e.toString())

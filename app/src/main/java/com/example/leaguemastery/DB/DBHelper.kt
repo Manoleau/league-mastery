@@ -25,15 +25,91 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
                 version + " VARCHAR(255) NOT NULL," +
                 image + " VARCHAR(255) NOT NULL" +
                 ");")
+        val query3 = ("CREATE TABLE " + TABLE_NAME_FAV_ACC + " ("
+                + id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                uid + " VARCHAR(255) NOT NULL," +
+                riotAcc + " VARCHAR(255) NOT NULL," +
+                puuid + " VARCHAR(255) NOT NULL," +
+                image + " VARCHAR(255) NOT NULL" +
+                ");")
         db.execSQL(query)
         db.execSQL(query2)
+        db.execSQL(query3)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, p1: Int, p2: Int) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_RIOT_ACC)
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_IMAGE)
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_FAV_ACC)
         onCreate(db)
     }
+    fun addFav(uidDB : String, riotAccDB: String, puuidDB: String, profileIconId:Int){
+        val values = ContentValues()
+        values.put(uid, uidDB)
+        values.put(riotAcc, riotAccDB)
+        values.put(puuid, puuidDB)
+        values.put(image, getImage(profileIconId.toString(), "image"))
+        val db = this.writableDatabase
+        db.insert(TABLE_NAME_FAV_ACC, null, values)
+    }
+    fun removeFav(uidDB: String, puuidDB: String):Int{
+        val db = this.writableDatabase
+
+        val selection = "uid = ? AND puuid = ?"
+        val selectionArgs = arrayOf(uidDB, puuidDB)
+
+        return db.delete(TABLE_NAME_FAV_ACC, selection, selectionArgs)
+    }
+
+    fun getFavs(uidDB: String, context: Context):ArrayList<FavDB>{
+        val db = this.readableDatabase
+        val res = ArrayList<FavDB>()
+        val projection = arrayOf("id", "uid", "riotacc", "puuid", "image")
+        val selection = "uid = ?"
+        val selectionArgs = arrayOf(uidDB)
+        val cursor:Cursor = db.query(
+            TABLE_NAME_FAV_ACC,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            null
+        )
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getInt(0)
+                val uid = cursor.getString(1)
+                val riotacc = cursor.getString(2)
+                val puuid = cursor.getString(3)
+                val image = cursor.getString(4)
+                res.add(FavDB(id, uid, riotacc, puuid, Cache.base64ToDrawable(image, context)))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return res
+    }
+
+    fun isFav(uidDB: String, puuidDB: String):Boolean{
+        val db = this.readableDatabase
+        val projection = arrayOf("id")
+        val selection = "uid = ? AND puuid = ?"
+        val selectionArgs = arrayOf(uidDB, puuidDB)
+        val cursor:Cursor = db.query(
+            TABLE_NAME_FAV_ACC,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            null
+        )
+        val res = cursor.moveToFirst()
+        cursor.close()
+        return res
+    }
+
+
 
     fun addSummoner(riotAccDB : String, puuidDB:String){
         if(getSummoner(riotAccDB) == null){
@@ -192,9 +268,9 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         return res
     }
 
-    fun getImage(context: Context, key1DB:String, key2DB: String): Drawable? {
+    fun getImage(key1DB: String, key2DB: String): String? {
         val db = this.readableDatabase
-        var res: Drawable? = null
+        var res: String? = null
         val projection = arrayOf("id", image)
         val selection = "key1 = ? AND key2 = ?"
         val selectionArgs = arrayOf(key1DB, key2DB)
@@ -208,7 +284,7 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
             null
         )
         if (cursor.moveToFirst()) {
-            res = Cache.base64ToDrawable(cursor.getString(1), context)
+            res = cursor.getString(1)
         }
         cursor.close()
         return res
@@ -227,5 +303,9 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         val key2 = "key2"
         val version = "version"
         val image = "image"
+
+        val TABLE_NAME_FAV_ACC = "favoris"
+        val uid = "uid"
+
     }
 }

@@ -20,11 +20,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.leaguemastery.API.ApiClientLeagueMastery
 import com.example.leaguemastery.Cache
 import com.example.leaguemastery.DB.DBHelper
+import com.example.leaguemastery.R
 import com.example.leaguemastery.databinding.FragmentProfileBinding
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
+import com.google.firebase.auth.FirebaseAuth
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 
 class ProfileFragment : Fragment() {
 
@@ -47,6 +50,13 @@ class ProfileFragment : Fragment() {
         masteryPointsTextView = binding.masteryPointsTextView
         masteryRecyclerView = binding.masteryRecyclerView
         if(!Cache.updating){
+            val firebaseAuth = FirebaseAuth.getInstance()
+            val currentUser = firebaseAuth.currentUser
+            var uid = "0"
+            if(currentUser != null){
+                uid = currentUser.uid
+            }
+            var isFav = dbHelper!!.isFav(uid, Cache.actualSummoner!!.puuid)
             if(Cache.actualSummonerChampion.isEmpty()){
                 val callMasteryChampion = ApiClientLeagueMastery.api.getSummonerChampionsLanguageByPuuid(Cache.actualSummoner?.puuid!!, Cache.langue.code)
                 callMasteryChampion.enqueue(object : Callback<List<ChampionSummonerLanguage>>{
@@ -62,8 +72,7 @@ class ProfileFragment : Fragment() {
                                         championMas.championPoints!!
                                     )!!
                                 }
-                                Cache.adapterM = MasteryAdapter(sortedMasteryList, dbHelper!!)
-
+                                Cache.adapterM = MasteryAdapter(sortedMasteryList)
                                 binding.masteryRecyclerView.apply {
                                     layoutManager = LinearLayoutManager(context)
                                     adapter = Cache.adapterM
@@ -81,7 +90,7 @@ class ProfileFragment : Fragment() {
                 })
             }
             else {
-                Cache.adapterM = MasteryAdapter(Cache.actualSummonerChampion, dbHelper!!)
+                Cache.adapterM = MasteryAdapter(Cache.actualSummonerChampion)
                 masteryRecyclerView?.apply {
                     layoutManager = LinearLayoutManager(context)
                     adapter = Cache.adapterM
@@ -99,6 +108,25 @@ class ProfileFragment : Fragment() {
                 override fun afterTextChanged(s: Editable) {
                 }
             })
+            val favoriteIcon: ImageView = binding.favoriteIcon
+            if (isFav){
+                favoriteIcon.setImageResource(R.drawable.ic_fav)
+            } else {
+                favoriteIcon.setImageResource(R.drawable.ic_notfav)
+            }
+            favoriteIcon.setOnClickListener {
+                isFav = if (isFav) {
+                    favoriteIcon.setImageResource(R.drawable.ic_notfav)
+                    dbHelper!!.removeFav(uid, Cache.actualSummoner!!.puuid)
+                    false
+                } else {
+                    favoriteIcon.setImageResource(R.drawable.ic_fav)
+                    dbHelper!!.addFav(uid, "${Cache.actualSummoner!!.riotName}#${Cache.actualSummoner!!.tag}", Cache.actualSummoner!!.puuid, Cache.actualSummoner!!.profileIconId)
+                    Toast.makeText(context, "Ajout de ${Cache.actualSummoner?.riotName}#${Cache.actualSummoner?.tag} en favoris", Toast.LENGTH_SHORT).show()
+                    true
+                }
+            }
+
         }
         return binding.root
     }

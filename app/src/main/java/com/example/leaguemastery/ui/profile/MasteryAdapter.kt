@@ -1,9 +1,6 @@
 package com.example.leaguemastery.ui.profile
 
 import android.graphics.drawable.Drawable
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,11 +9,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leaguemastery.Cache
-import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.R
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
 
-class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>, private val dbHelper: DBHelper) :
+class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>) :
     RecyclerView.Adapter<MasteryAdapter.MasteryViewHolder>() {
 
     private var filteredMasteryList: List<ChampionSummonerLanguage> = masteryList
