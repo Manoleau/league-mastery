@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -13,7 +14,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
     private lateinit var navView:BottomNavigationView
     lateinit var firebaseAuth: FirebaseAuth
@@ -22,10 +22,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         navView = binding.navView
-
+        navView.findViewById<TextView>(R.id.riotNameTextView)
         firebaseAuth = FirebaseAuth.getInstance()
-
-        Log.i("GGEZ", firebaseAuth.currentUser?.uid.toString())
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         navView.setupWithNavController(navController)
     }

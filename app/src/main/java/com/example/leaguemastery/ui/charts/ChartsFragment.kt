@@ -13,6 +13,7 @@ import android.view.WindowManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
+import com.example.leaguemastery.API.Update
 import com.example.leaguemastery.Cache
 import com.example.leaguemastery.databinding.FragmentChartsBinding
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
@@ -40,43 +41,34 @@ class ChartsFragment : Fragment() {
         _binding = FragmentChartsBinding.inflate(inflater, container, false)
         val root: View = binding.root
         val context = root.context
-
-        val list:ArrayList<BarEntry> = ArrayList()
-
-        list.add(BarEntry(100f,100f))
-        list.add(BarEntry(101f,101f))
-        list.add(BarEntry(102f,102f))
-        list.add(BarEntry(103f,103f))
-        list.add(BarEntry(104f,104f))
-
-        val barDataSet = BarDataSet(list, "List")
-
         val wm = context!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         screensize = wm.defaultDisplay
-        barDataSet.setColors(ColorTemplate.MATERIAL_COLORS, 255)
-
-        barDataSet.valueTextColor = Color.WHITE
-
-
         val webView = binding.webview
-        webView.settings.javaScriptEnabled = true
+        if(!Cache.updating){
+            webView.settings.javaScriptEnabled = true
 
-        val jsonData = convertListToJson(Cache.actualSummonerChampion)
-        val script = "createTreeMap($jsonData);"
+            val jsonData = convertListToJson(Cache.actualSummonerChampion)
+            val script = "createTreeMap($jsonData);"
 
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                webView.evaluateJavascript(script, null)
+            webView.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    webView.evaluateJavascript(script, null)
+                }
             }
+            webView.loadUrl("file:///android_asset/treemap.html")
+        } else {
+            webView.loadUrl("about:blank")
         }
-        webView.loadUrl("file:///android_asset/treemap.html")
-
         return root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        val webView = binding.webview
+        if(webView != null){
+            webView.loadUrl("about:blank")
+        }
         _binding = null
     }
 

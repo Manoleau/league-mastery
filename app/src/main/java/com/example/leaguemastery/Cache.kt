@@ -24,6 +24,7 @@ import java.net.URL
 
 class Cache {
     companion object {
+        var updating = false
         var version = ""
         var langue: Language = Language.FR_FR
         var data = HashMap<String, HashMap<String, Drawable>>()
@@ -32,7 +33,6 @@ class Cache {
         var adapterM: MasteryAdapter? = null
 
         fun setImage(url:String, key:String, key2:String, version:String, dbHelper: DBHelper, context: Context): Drawable?{
-
             try {
                 val oldVer = dbHelper.getVersionImage(key, key2)
                 if(oldVer != version){

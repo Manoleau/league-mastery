@@ -88,7 +88,7 @@ class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>, pr
     override fun getItemCount() = filteredMasteryList.size
 
     fun loadMastery(newMasteryList: List<ChampionSummonerLanguage>) {
-        masteryList = newMasteryList
+        filteredMasteryList = newMasteryList
         notifyDataSetChanged()
     }
 
