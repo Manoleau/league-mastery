@@ -22,7 +22,6 @@ class Update {
     companion object{
         val listViewUpdate: ArrayList<View> = ArrayList()
         var isBackButtonDisabled = false
-
         fun updateSummoner(puuid:String, context: Context, progressBar: ProgressBar){
             if(!Cache.updating){
                 progressBar.visibility = View.VISIBLE

@@ -1,6 +1,11 @@
 package com.example.leaguemastery
 
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -14,17 +19,23 @@ class Acceuil : AppCompatActivity() {
     lateinit var mAuth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mAuth = FirebaseAuth.getInstance()
-        currentUser = mAuth.currentUser
-        setContentView(R.layout.activity_acceuil)
-        findViewById<Button>(R.id.goToLogin).setOnClickListener{
-            startActivity(Intent(this@Acceuil, LoginActivity::class.java))
-        }
-        findViewById<Button>(R.id.goToRegister).setOnClickListener{
-            startActivity(Intent(this@Acceuil, RegisterActivity::class.java))
-        }
-        findViewById<Button>(R.id.ano).setOnClickListener{
+        if(Cache.isOnline(this@Acceuil)){
+            mAuth = FirebaseAuth.getInstance()
+            currentUser = mAuth.currentUser
+            setContentView(R.layout.activity_acceuil)
+            findViewById<Button>(R.id.goToLogin).setOnClickListener{
+                startActivity(Intent(this@Acceuil, LoginActivity::class.java))
+            }
+            findViewById<Button>(R.id.goToRegister).setOnClickListener{
+                startActivity(Intent(this@Acceuil, RegisterActivity::class.java))
+            }
+            findViewById<Button>(R.id.ano).setOnClickListener{
+                startActivity(Intent(this@Acceuil, AcceuilRecherche::class.java))
+            }
+        } else {
             startActivity(Intent(this@Acceuil, AcceuilRecherche::class.java))
+            Toast.makeText(this@Acceuil, "Aucune connexion à internet", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
