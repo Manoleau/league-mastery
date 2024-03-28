@@ -36,17 +36,15 @@ class RegisterActivity : AppCompatActivity() {
         register = findViewById<View>(R.id.submit_btn) as Button
         accountExists = findViewById<View>(R.id.Already_link) as Button
         loadingBar = ProgressDialog(this)
-        //When user has  an account already he should be sent to login activity.
         accountExists.setOnClickListener { sendUserToLoginActivity() }
-        //When user clicks on register create a new account for user
         register.setOnClickListener { createNewAccount() }
         if (supportActionBar != null) {
             supportActionBar!!.hide()
         }
     }
 
-    /*
-        This method creates new account for new users.
+    /**
+     * Crée un nouveau compte utilisateur en utilisant les informations fournies dans les champs de l'interface utilisateur.
      */
     private fun createNewAccount() {
         val email: String = email.text.toString().trim()
@@ -101,8 +99,8 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    /*
-        After successfull registration send user to Login page.
+    /**
+     * Navigue vers l'activité de connexion pour permettre à l'utilisateur de se connecter après l'inscription.
      */
     private fun sendUserToLoginActivity() {
         startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))

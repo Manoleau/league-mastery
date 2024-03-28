@@ -11,6 +11,7 @@ import android.view.WindowManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
+import com.example.leaguemastery.API.Update
 import com.example.leaguemastery.Cache
 import com.example.leaguemastery.databinding.FragmentChartsBinding
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
@@ -38,7 +39,7 @@ class ChartsFragment : Fragment() {
         val wm = context!!.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         screensize = wm.defaultDisplay
         val webView = binding.webview
-        if(!Cache.updating){
+        if(!Update.updating){
             webView.settings.javaScriptEnabled = true
 
             val jsonData = convertListToJson(Cache.actualSummonerChampion)
@@ -64,6 +65,14 @@ class ChartsFragment : Fragment() {
         _binding = null
     }
 
+    /**
+     * Convertit une liste de champions (et leur maîtrise par un invocateur) en une chaîne JSON
+     * formatée pour être utilisée dans un script JavaScript. Les dimensions de l'écran sont également
+     * incluses dans le JSON pour ajuster la visualisation.
+     *
+     * @param champions La liste des champions à convertir.
+     * @return Une chaîne JSON contenant les données des champions et les dimensions de l'écran.
+     */
     private fun convertListToJson(champions: List<ChampionSummonerLanguage>): String {
         val displayMetrics = DisplayMetrics()
         @Suppress("DEPRECATION")

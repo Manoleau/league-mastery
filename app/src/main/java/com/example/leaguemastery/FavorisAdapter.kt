@@ -10,6 +10,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leaguemastery.DB.FavDB
 
+/**
+ * Adapter pour afficher une liste de favoris dans un RecyclerView.
+ * Chaque élément de favoris comprend l'icône de profil de l'invocateur et son nom de compte Riot.
+ */
 class FavorisAdapter(private var favorisList: List<FavDB>):
     RecyclerView.Adapter<FavorisAdapter.FavorisViewHolder>(){
 

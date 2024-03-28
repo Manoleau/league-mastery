@@ -24,9 +24,13 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.net.URL
 
+/**
+ * Classe de gestion de cache pour l'application League Mastery.
+ * Cette classe permet de stocker et de gérer les données de manière efficace
+ * pour réduire les appels réseau et améliorer les performances de l'application.
+ */
 class Cache {
     companion object {
-        var updating = false
         var version = ""
         var langue: Language = Language.FR_FR
         var data = HashMap<String, HashMap<String, Drawable>>()
@@ -34,6 +38,18 @@ class Cache {
         var actualSummonerChampion: List<ChampionSummonerLanguage> = ArrayList()
         var adapterM: MasteryAdapter? = null
 
+        /**
+         * Télécharge une image depuis une URL, la stocke dans le cache et la base de données, et retourne un Drawable.
+         * Si l'image est déjà dans la version actuelle, elle est récupérée depuis la base de données.
+         *
+         * @param url URL de l'image à télécharger.
+         * @param key Clé principale pour identifier l'image.
+         * @param key2 Clé secondaire pour identifier l'image.
+         * @param version Version actuelle des données.
+         * @param dbHelper Instance de DBHelper pour interagir avec la base de données.
+         * @param context Contexte de l'application.
+         * @return Drawable correspondant à l'image téléchargée ou null en cas d'erreur.
+         */
         fun setImage(url:String, key:String, key2:String, version:String, dbHelper: DBHelper, context: Context): Drawable?{
             try {
                 val oldVer = dbHelper.getVersionImage(key, key2)
@@ -55,7 +71,14 @@ class Cache {
                 } else {
                     val image = dbHelper.getImage(key, key2)
                     if (image != null){
-                        return base64ToDrawable(image, context)
+                        val drawImage = base64ToDrawable(image, context)
+                        if(data[key] == null){
+                            data[key] = HashMap()
+                        }
+                        data[key]?.put(key2,
+                            drawImage
+                        )
+                        return drawImage
                     }
                     return null
                 }
@@ -64,6 +87,13 @@ class Cache {
                 return null
             }
         }
+
+        /**
+         * Convertit un Drawable en une chaîne de caractères Base64.
+         *
+         * @param drawable Drawable à convertir.
+         * @return Chaîne de caractères Base64 représentant le Drawable.
+         */
         private fun drawableToBase64(drawable: Drawable): String {
             val bitmap = if (drawable is BitmapDrawable) {
                 drawable.bitmap
@@ -80,44 +110,61 @@ class Cache {
                 return Base64.encodeToString(byteArray, Base64.DEFAULT)
             }
         }
+
+        /**
+         * Convertit une chaîne de caractères Base64 en un Drawable.
+         *
+         * @param base64Str Chaîne de caractères Base64 à convertir.
+         * @param context Contexte de l'application.
+         * @return Drawable correspondant à la chaîne de caractères Base64.
+         */
         fun base64ToDrawable(base64Str: String, context: Context): Drawable {
             val imageBytes = Base64.decode(base64Str, Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             return BitmapDrawable(context.resources, bitmap)
         }
+
+        /**
+         * Télécharge et met à jour les images des champions depuis une API externe,
+         * et met à jour la base de données locale si nécessaire.
+         *
+         * @param context Contexte de l'application.
+         * @param dbHelper Instance de DBHelper pour interagir avec la base de données.
+         */
         fun downloadAndSetImages(context: Context, dbHelper: DBHelper){
-            if(dbHelper.getVersionImages() == version){
-                data = dbHelper.getImages(context)
-            } else {
-                val callChampions = ApiClientLeagueMastery.api.getChampions()
-                callChampions.enqueue(object : Callback<List<ChampionDefault>>{
-                    override fun onResponse(
-                        call: Call<List<ChampionDefault>>,
-                        response: Response<List<ChampionDefault>>
-                    ) {
-                        if(response.isSuccessful){
-                            val champions = response.body()
-                            data = HashMap()
-                            if (champions != null) {
-                                for(champion in champions){
-                                    Thread{
-                                        setImage("https://ddragon.leagueoflegends.com/cdn/$version/img/champion/${champion.name_id}.png", champion.key.toString(), "image_icon", version, dbHelper, context)
-                                    }.start()
-                                }
+            val callChampions = ApiClientLeagueMastery.api.getChampions()
+            callChampions.enqueue(object : Callback<List<ChampionDefault>>{
+                override fun onResponse(
+                    call: Call<List<ChampionDefault>>,
+                    response: Response<List<ChampionDefault>>
+                ) {
+                    if(response.isSuccessful){
+                        val champions = response.body()
+                        data = HashMap()
+                        if (champions != null) {
+                            for(champion in champions){
+                                Thread{
+                                    Log.i("Champions", "${champion.default_name} : ${champion.image_icon}")
+                                    setImage("https://ddragon.leagueoflegends.com/cdn/$version/img/champion/${champion.name_id}.png", champion.key.toString(), "image_icon", version, dbHelper, context)
+                                }.start()
                             }
-                        } else {
-                            Log.i("Erreur champions", response.message()+ " " + response.code())
                         }
+                    } else {
+                        Log.i("Erreur champions", response.message()+ " " + response.code())
                     }
-
-                    override fun onFailure(call: Call<List<ChampionDefault>>, t: Throwable) {
-                        Log.i("Erreur champions", t.toString())
-
-                    }
-                })
-            }
-
+                }
+                override fun onFailure(call: Call<List<ChampionDefault>>, t: Throwable) {
+                    Log.i("Erreur champions", t.toString())
+                }
+            })
         }
+
+        /**
+         * Vérifie si l'appareil est actuellement connecté à Internet.
+         *
+         * @param context Contexte de l'application.
+         * @return true si l'appareil est connecté à Internet, false sinon.
+         */
         fun isOnline(context: Context): Boolean {
             val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val activeNetwork = connectivityManager.activeNetwork ?: return false

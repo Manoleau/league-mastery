@@ -27,9 +27,18 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
     }
 
+    /**
+     * Met à jour les informations de l'invocateur actuel.
+     *
+     * @param puuid L'identifiant unique de l'invocateur à mettre à jour.
+     */
     private fun updateSummoner(puuid:String) {
         Update.updateSummoner(puuid, binding.root.context)
     }
+
+    /**
+     * Intercepte le bouton de retour pour empêcher le retour en arrière si le processus de mise à jour est actif.
+     */
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (!Update.isBackButtonDisabled) {
@@ -38,8 +47,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        Update.listViewUpdate.remove(navView)
-        firebaseAuth.signOut()
         super.onDestroy()
     }
 

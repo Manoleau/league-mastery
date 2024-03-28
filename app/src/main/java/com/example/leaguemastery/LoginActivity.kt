@@ -48,6 +48,9 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Navigue vers l'activité d'inscription pour permettre à l'utilisateur de créer un nouveau compte.
+     */
     private fun sendUserToRegister() {
         //When user wants to create a new account send user to Register Activity
         val registerIntent = Intent(
@@ -57,6 +60,9 @@ class LoginActivity : AppCompatActivity() {
         startActivity(registerIntent)
     }
 
+    /**
+     * Tente de connecter l'utilisateur avec l'email et le mot de passe fournis.
+     */
     private fun allowUserToLogin() {
         val email: String = userName.text.toString().trim()
         val pwd: String = password.text.toString()
@@ -89,9 +95,10 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Vérifie si l'utilisateur est déjà connecté au démarrage de l'activité et le redirige si c'est le cas.
+     */
     override fun onStart() {
-        //Check if user has already signed in if yes send to mainActivity
-        //This to avoid signing in everytime you open the app.
         super.onStart()
         if(currentUser != null){
             Toast.makeText(this@LoginActivity, "Connecté en tant que "+ currentUser!!.displayName, Toast.LENGTH_SHORT)
@@ -100,6 +107,9 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Navigue vers l'activité principale de l'application.
+     */
     private fun sendToAcceuil() {
         //This is to send user to MainActivity
         startActivity(Intent(this@LoginActivity, AcceuilRecherche::class.java))

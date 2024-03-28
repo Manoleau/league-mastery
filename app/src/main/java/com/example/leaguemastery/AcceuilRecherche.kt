@@ -101,6 +101,9 @@ class AcceuilRecherche : AppCompatActivity() {
         super.onStart()
     }
 
+    /**
+     * Réinitialise les composants de l'activité et recharge les données lorsque l'activité revient au premier plan.
+     */
     override fun onResume() {
         super.onResume()
         if(Cache.isOnline(this@AcceuilRecherche)){
@@ -121,9 +124,16 @@ class AcceuilRecherche : AppCompatActivity() {
 
     }
     override fun onDestroy() {
+        firebaseAuth.signOut()
         super.onDestroy()
         //Cache.saveInPhone(dbHelper)
     }
+
+    /**
+     * Configure l'AutoCompleteTextView pour les noms d'invocateurs, utilisant les données des invocateurs déjà recherchés.
+     *
+     * @param autoCompleteTextView Le champ de texte avec saisie semi-automatique pour les noms d'invocateurs.
+     */
     private fun setAutoCompleteRiotAcc(autoCompleteTextView:AutoCompleteTextView){
         val summonersDB = ArrayList<String>()
         for (summ in dbHelper.getAllSummoner()){
@@ -134,11 +144,18 @@ class AcceuilRecherche : AppCompatActivity() {
         autoCompleteTextView.threshold = 1
     }
 
-    companion object{
+    companion object {
         private lateinit var dbHelper: DBHelper
         lateinit var btn_search: Button
         lateinit var riotAccText: AutoCompleteTextView
         private lateinit var loadingBar: ProgressDialog
+
+        /**
+         * Lance la recherche d'un joueur en utilisant le nom de compte Riot spécifié, affiche les résultats
+         * dans une nouvelle activité.
+         *
+         * @param context Le contexte dans lequel la recherche est effectuée.
+         */
         fun searchPlayer(context: Context){
 
             btn_search.isEnabled = false

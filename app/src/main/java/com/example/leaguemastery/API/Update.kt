@@ -15,6 +15,11 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+
+/**
+ * Classe de gestion des mises à jour pour l'application League Mastery.
+ * Permet de mettre à jour les informations d'un invocateur et de ses champions depuis une API.
+ */
 class Update {
     companion object{
         val listViewUpdate: ArrayList<View> = ArrayList()
@@ -22,8 +27,14 @@ class Update {
         lateinit var loadingBar: ProgressDialog
         var updating: Boolean = false
 
+        /**
+         * Lance la mise à jour des informations de l'invocateur spécifié.
+         *
+         * @param puuid Identifiant unique de l'invocateur à mettre à jour.
+         * @param context Contexte de l'application pour afficher des messages et des dialogues.
+         */
         fun updateSummoner(puuid:String, context: Context){
-            if(!Cache.updating){
+            if(!updating){
                 loadingBar = ProgressDialog(context)
                 loadingBar.setTitle("Mise à jour en cours...")
                 loadingBar.setMessage("Veillez patienter")
@@ -74,6 +85,12 @@ class Update {
                 Toast.makeText(context, "Une mise à jour est en cours", Toast.LENGTH_SHORT).show()
             }
         }
+
+        /**
+         * Met à jour la maîtrise des champions de l'invocateur actuel en utilisant les données de l'API.
+         *
+         * @param context Contexte de l'application.
+         */
         fun setChampionMastery(context: Context){
             val callMasteryChampion = ApiClientLeagueMastery.api.getSummonerChampionsLanguageByPuuid(Cache.actualSummoner?.puuid!!, Cache.langue.code)
             callMasteryChampion.enqueue(object : Callback<List<ChampionSummonerLanguage>>{

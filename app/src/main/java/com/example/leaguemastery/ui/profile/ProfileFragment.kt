@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.leaguemastery.API.ApiClientLeagueMastery
+import com.example.leaguemastery.API.Update
 import com.example.leaguemastery.Cache
 import com.example.leaguemastery.DB.DBHelper
 import com.example.leaguemastery.R
@@ -49,7 +50,7 @@ class ProfileFragment : Fragment() {
         summonerLevelTextView = binding.summonerLevelTextView
         masteryPointsTextView = binding.masteryPointsTextView
         masteryRecyclerView = binding.masteryRecyclerView
-        if(!Cache.updating){
+        if(!Update.updating){
             val firebaseAuth = FirebaseAuth.getInstance()
             val currentUser = firebaseAuth.currentUser
             var uid = "0"
@@ -141,6 +142,12 @@ class ProfileFragment : Fragment() {
         var masteryPointsTextView:TextView? = null
         var dbHelper:DBHelper? = null
         var masteryRecyclerView:RecyclerView? = null
+
+        /**
+         * Met à jour les vues avec les informations de profil de l'invocateur et de sa maîtrise totale des champions.
+         *
+         * @param iconSummoner L'icône de profil de l'invocateur sous forme de Drawable.
+         */
         @SuppressLint("SetTextI18n")
         fun setProfile(iconSummoner: Drawable){
             profileIconImageView?.setImageDrawable(iconSummoner)
@@ -148,6 +155,13 @@ class ProfileFragment : Fragment() {
             summonerLevelTextView?.text = "Level: ${Cache.actualSummoner?.summonerLevel}"
             masteryPointsTextView?.text = "Maîtrise: ${formatNumber(Cache.actualSummoner?.masteryPoints!!)} pts"
         }
+
+        /**
+         * Formate et retourne une chaîne représentant un nombre avec des suffixes pour les milliers (K) et les millions (M).
+         *
+         * @param number Le nombre à formater.
+         * @return Une chaîne représentant le nombre formaté.
+         */
         private fun formatNumber(number: Int): String {
             if (number >= 1_000_000) {
                 return String.format("%.1fM", number / 1_000_000.0).replace(Regex("\\.0+"), "")
@@ -156,6 +170,13 @@ class ProfileFragment : Fragment() {
             }
             return number.toString()
         }
+
+        /**
+         * Met à jour le profil de l'invocateur dans les vues, y compris son icône, son nom, son niveau et sa maîtrise totale des champions.
+         * Si l'icône de l'invocateur n'est pas en cache, la télécharge, puis met à jour les vues.
+         *
+         * @param context Contexte de l'application.
+         */
         fun setProfileInViews(context: Context){
             val handler = Handler(Looper.getMainLooper())
             val summoner = Cache.actualSummoner

@@ -14,6 +14,9 @@ import com.example.leaguemastery.Cache
 import com.example.leaguemastery.R
 import com.example.leaguemastery.entity.ChampionSummonerLanguage
 
+/**
+ * Adapter pour afficher les données de maîtrise des champions dans un RecyclerView.
+ */
 class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>) :
     RecyclerView.Adapter<MasteryAdapter.MasteryViewHolder>() {
 
@@ -45,6 +48,16 @@ class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>) :
             }
         }
     }
+
+    /**
+     * Configure les informations de maîtrise d'un champion pour un ViewHolder donné.
+     * Affecte l'icône, le nom, le niveau de maîtrise, les points de maîtrise et l'état de l'obtention du coffre
+     * au ViewHolder.
+     *
+     * @param holder Le ViewHolder qui doit être configuré.
+     * @param mastery L'objet ChampionSummonerLanguage contenant les informations de maîtrise du champion.
+     * @param championIcon L'icône du champion à afficher.
+     */
     @SuppressLint("SetTextI18n")
     fun setAll(holder:MasteryViewHolder, mastery:ChampionSummonerLanguage, championIcon:Drawable){
         holder.championIcon.setImageDrawable(championIcon)
@@ -84,14 +97,27 @@ class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>) :
         }
         holder.championPoints.text = mastery.championPoints.toString()
     }
+
     override fun getItemCount() = filteredMasteryList.size
 
+    /**
+     * Met à jour la liste des maîtrises des champions avec de nouvelles données et notifie
+     * le RecyclerView que les données ont changé.
+     *
+     * @param newMasteryList La nouvelle liste des maîtrises des champions à afficher.
+     */
     @SuppressLint("NotifyDataSetChanged")
     fun loadMastery(newMasteryList: List<ChampionSummonerLanguage>) {
         filteredMasteryList = newMasteryList
         notifyDataSetChanged()
     }
 
+    /**
+     * Filtre la liste des maîtrises des champions par nom de champion et notifie le RecyclerView
+     * que les données ont changé.
+     *
+     * @param name Le nom du champion à filtrer.
+     */
     @SuppressLint("NotifyDataSetChanged")
     fun filterByName(name: String) {
         filteredMasteryList = if (name.isEmpty()) {
