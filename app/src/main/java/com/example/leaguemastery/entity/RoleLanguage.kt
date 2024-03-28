@@ -2,10 +2,10 @@ package com.example.leaguemastery.entity
 
 class RoleLanguage(
     _id:String,
-    image_icon: String,
-    val translate_name: String,
-    val language_code: String
+    imageIcon: String,
+    val translateName: String,
+    val languageCode: String
 ) :
     Role(
-        _id, image_icon
+        _id, imageIcon
     )

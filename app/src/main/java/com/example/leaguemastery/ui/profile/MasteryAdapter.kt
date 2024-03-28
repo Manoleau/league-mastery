@@ -1,5 +1,7 @@
 package com.example.leaguemastery.ui.profile
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
@@ -24,7 +26,7 @@ class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>) :
         val championPoints: TextView = view.findViewById(R.id.championPointsTextView)
         val chestGrantedImage: ImageView = view.findViewById(R.id.chestGrantedImageView)
         val chestGrantedText: TextView = view.findViewById(R.id.chestGrantedTextView)
-        val context = view.context
+        val context: Context = view.context
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MasteryViewHolder {
@@ -37,13 +39,14 @@ class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>) :
         val mastery = filteredMasteryList[position]
         if(Cache.data[mastery.champion.key.toString()] != null && Cache.data[mastery.champion.key.toString()]!!.containsKey("image_icon")) {
             val championIcon = Cache.data[mastery.champion.key.toString()]!!["image_icon"]
-            setAll(holder, mastery, championIcon!!, position)
+            setAll(holder, mastery, championIcon!!)
             holder.itemView.setOnClickListener{
                 Toast.makeText(holder.context, mastery.champion.name, Toast.LENGTH_SHORT).show()
             }
         }
     }
-    fun setAll(holder:MasteryViewHolder, mastery:ChampionSummonerLanguage, championIcon:Drawable, position:Int){
+    @SuppressLint("SetTextI18n")
+    fun setAll(holder:MasteryViewHolder, mastery:ChampionSummonerLanguage, championIcon:Drawable){
         holder.championIcon.setImageDrawable(championIcon)
         holder.championName.text = mastery.champion.name
         when (mastery.championLevel) {
@@ -83,19 +86,21 @@ class MasteryAdapter(private var masteryList: List<ChampionSummonerLanguage>) :
     }
     override fun getItemCount() = filteredMasteryList.size
 
+    @SuppressLint("NotifyDataSetChanged")
     fun loadMastery(newMasteryList: List<ChampionSummonerLanguage>) {
         filteredMasteryList = newMasteryList
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun filterByName(name: String) {
-        if (name.isEmpty()) {
-            filteredMasteryList = masteryList
+        filteredMasteryList = if (name.isEmpty()) {
+            masteryList
         } else {
 
-            filteredMasteryList = masteryList.filter {
-                it.champion.name.toLowerCase().contains(name.toLowerCase() ) or
-                it.champion.name_id!!.toLowerCase().contains(name.toLowerCase())
+            masteryList.filter {
+                it.champion.name.lowercase().contains(name.lowercase() ) or
+                        it.champion.nameId!!.lowercase().contains(name.lowercase())
             }
         }
         notifyDataSetChanged()

@@ -1,11 +1,6 @@
 package com.example.leaguemastery
 
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -14,9 +9,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 
 class Acceuil : AppCompatActivity() {
-    var currentUser: FirebaseUser? = null
+    private var currentUser: FirebaseUser? = null
 
-    lateinit var mAuth: FirebaseAuth
+    private lateinit var mAuth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if(Cache.isOnline(this@Acceuil)){
@@ -46,9 +41,5 @@ class Acceuil : AppCompatActivity() {
                 .show()
              startActivity(Intent(this@Acceuil, AcceuilRecherche::class.java))
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 }

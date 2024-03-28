@@ -32,7 +32,7 @@ interface LeagueMasteryApi {
     fun getSummonerChampionLanguageByPuuid(
         @Path("puuid") puuid: String,
         @Query("language_code") languageCode: String,
-        @Query("champion_id") champion_id: Int
+        @Query("champion_id") championId: Int
     ): Call<ChampionSummonerLanguage>
     @GET("/summoners/champions/{puuid}")
     fun getSummonerChampionsLanguageByPuuid(
@@ -42,7 +42,7 @@ interface LeagueMasteryApi {
     @GET("/summoners/champions/{puuid}")
     fun getSummonerChampionDefaultByPuuid(
         @Path("puuid") puuid: String,
-        @Query("champion_id") champion_id: Int
+        @Query("champion_id") championId: Int
     ): Call<ChampionSummonerDefault>
     @GET("/summoners/champions/{puuid}")
     fun getSummonerChampionsDefaultByPuuid(

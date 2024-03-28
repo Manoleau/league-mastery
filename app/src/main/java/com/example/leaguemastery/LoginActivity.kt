@@ -4,7 +4,6 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -19,15 +18,15 @@ import com.google.firebase.auth.FirebaseUser
 
 
 class LoginActivity : AppCompatActivity() {
-    lateinit var userName: EditText
-    lateinit var password:EditText
-    lateinit var login: Button
-    lateinit var register: TextView
-    var currentUser: FirebaseUser? = null
+    private lateinit var userName: EditText
+    private lateinit var password:EditText
+    private lateinit var login: Button
+    private lateinit var register: TextView
+    private var currentUser: FirebaseUser? = null
 
-    lateinit var mAuth: FirebaseAuth
+    private lateinit var mAuth: FirebaseAuth
 
-    lateinit var loadingBar: ProgressDialog
+    private lateinit var loadingBar: ProgressDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -42,35 +41,13 @@ class LoginActivity : AppCompatActivity() {
         mAuth = FirebaseAuth.getInstance()
         loadingBar = ProgressDialog(this)
         currentUser = mAuth.currentUser
-        login.setOnClickListener{ AllowUserToLogin() }
+        login.setOnClickListener{ allowUserToLogin() }
         register.setOnClickListener { sendUserToRegister() }
         if (supportActionBar != null) {
             supportActionBar!!.hide()
         }
     }
 
-    /*
-        Handles the password reset operation.
-     */
-    private fun resetPasswordUser() {
-        val email: String = userName.text.toString().trim()
-        if (TextUtils.isEmpty(email)) {
-            Toast.makeText(this@LoginActivity, "Entrez votre email svp", Toast.LENGTH_SHORT)
-                .show()
-        } else {
-            FirebaseAuth.getInstance().sendPasswordResetEmail(email)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Toast.makeText(this@LoginActivity, "Mail envoyé", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
-        }
-    }
-
-    /*
-        To send user to the registration page.
-     */
     private fun sendUserToRegister() {
         //When user wants to create a new account send user to Register Activity
         val registerIntent = Intent(
@@ -80,10 +57,7 @@ class LoginActivity : AppCompatActivity() {
         startActivity(registerIntent)
     }
 
-    /*
-        Handle the login process.
-     */
-    private fun AllowUserToLogin() {
+    private fun allowUserToLogin() {
         val email: String = userName.text.toString().trim()
         val pwd: String = password.text.toString()
         if (TextUtils.isEmpty(email)) {

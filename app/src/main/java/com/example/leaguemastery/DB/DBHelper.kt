@@ -38,9 +38,9 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     }
 
     override fun onUpgrade(db: SQLiteDatabase, p1: Int, p2: Int) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_RIOT_ACC)
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_IMAGE)
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_FAV_ACC)
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_RIOT_ACC")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_IMAGE")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_FAV_ACC")
         onCreate(db)
     }
     fun addFav(uidDB : String, riotAccDB: String, puuidDB: String, profileIconId:Int){
@@ -255,7 +255,7 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     fun getImages(context: Context): HashMap<String, HashMap<String, Drawable>>{
         val db = this.readableDatabase
         val res: HashMap<String, HashMap<String, Drawable>> = HashMap()
-        val projection = arrayOf("id", key1, key2, image)
+        val projection = arrayOf(key1, key2, image)
         val cursor:Cursor = db.query(
             TABLE_NAME_IMAGE,
             projection,
@@ -267,10 +267,9 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         )
         if (cursor.moveToFirst()) {
             do {
-                val id = cursor.getInt(0)
-                val key1 = cursor.getString(1)
-                val key2 = cursor.getString(2)
-                val image = cursor.getString(3)
+                val key1 = cursor.getString(0)
+                val key2 = cursor.getString(1)
+                val image = cursor.getString(2)
                 res[key1] = HashMap()
                 res[key1]?.put(key2, Cache.base64ToDrawable(image, context))
             } while (cursor.moveToNext())
@@ -302,21 +301,21 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     }
 
     companion object{
-        private val DATABASE_NAME = "LeagueMastery"
-        private val DATABASE_VERSION = 1
-        val TABLE_NAME_RIOT_ACC = "summoner"
-        val id = "id"
-        val riotAcc = "riotacc"
-        val puuid = "puuid"
+        private const val DATABASE_NAME = "LeagueMastery"
+        private const val DATABASE_VERSION = 1
+        const val TABLE_NAME_RIOT_ACC = "summoner"
+        const val id = "id"
+        const val riotAcc = "riotacc"
+        const val puuid = "puuid"
 
-        val TABLE_NAME_IMAGE = "image"
-        val key1 = "key1"
-        val key2 = "key2"
-        val version = "version"
-        val image = "image"
+        const val TABLE_NAME_IMAGE = "image"
+        const val key1 = "key1"
+        const val key2 = "key2"
+        const val version = "version"
+        const val image = "image"
 
-        val TABLE_NAME_FAV_ACC = "favoris"
-        val uid = "uid"
+        const val TABLE_NAME_FAV_ACC = "favoris"
+        const val uid = "uid"
 
     }
 }
