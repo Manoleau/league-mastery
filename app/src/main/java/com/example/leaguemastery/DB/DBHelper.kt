@@ -62,7 +62,7 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         values.put(uid, uidDB)
         values.put(riotAcc, riotAccDB)
         values.put(puuid, puuidDB)
-        values.put(image, getImage(profileIconId.toString(), "image"))
+        values.put(image, getImage("${profileIconId.toString()}profil", "image"))
         val db = this.writableDatabase
         db.insert(TABLE_NAME_FAV_ACC, null, values)
     }
