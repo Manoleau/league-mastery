@@ -124,7 +124,6 @@ class AcceuilRecherche : AppCompatActivity() {
 
     }
     override fun onDestroy() {
-        firebaseAuth.signOut()
         super.onDestroy()
         //Cache.saveInPhone(dbHelper)
     }
