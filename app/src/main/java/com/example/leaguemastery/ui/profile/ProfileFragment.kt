@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -181,11 +182,11 @@ class ProfileFragment : Fragment() {
             val handler = Handler(Looper.getMainLooper())
             val summoner = Cache.actualSummoner
             var iconSummoner:Drawable?
-            if(Cache.data[summoner?.profileIconId.toString()] == null){
+            if(Cache.data["${summoner?.profileIconId.toString()}profil"] == null){
                 Thread{
                     iconSummoner = Cache.setImage(
                         "https://ddragon.leagueoflegends.com/cdn/${Cache.version}/img/profileicon/${summoner?.profileIconId}.png",
-                        summoner?.profileIconId.toString(),
+                        "${summoner?.profileIconId.toString()}profil",
                         "image",
                         Cache.version,
                         dbHelper!!,
@@ -199,10 +200,11 @@ class ProfileFragment : Fragment() {
                 }.start()
             }
             else {
-                iconSummoner = Cache.data[summoner?.profileIconId.toString()]?.get("image")
+                iconSummoner = Cache.data["${summoner?.profileIconId.toString()}profil"]?.get("image")
                 if (iconSummoner != null) {
                     setProfile(iconSummoner!!)
                 }
+
             }
         }
     }

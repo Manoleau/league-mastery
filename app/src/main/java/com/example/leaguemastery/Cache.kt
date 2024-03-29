@@ -58,6 +58,8 @@ class Cache {
                     val imageIcon = URL(url).content as InputStream
                     image = Drawable.createFromStream(imageIcon, key2)
 
+                    Log.i("imageGGEZ", image.toString())
+
                     if(image != null){
                         if(data[key] == null){
                             data[key] = HashMap()
