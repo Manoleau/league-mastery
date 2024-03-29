@@ -158,7 +158,7 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         valuesSummCache.put(riotAcc, riotAccDB)
         val valuesFavs = ContentValues()
         valuesFavs.put(riotAcc, riotAccDB)
-        valuesFavs.put(image, getImage(profileIconId.toString(), "image"))
+        valuesFavs.put(image, getImage(profileIconId.toString()+"profil", "image"))
         val selection = "$puuid = ?"
         val selectionArgs = arrayOf(puuidDB)
         db.update(TABLE_NAME_RIOT_ACC, valuesSummCache, selection, selectionArgs)

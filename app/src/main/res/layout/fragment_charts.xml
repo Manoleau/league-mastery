@@ -6,16 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".ui.charts.ChartsFragment"
     android:paddingBottom="56dp">
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <WebView
+        android:id="@+id/webview"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-        <WebView
-            android:id="@+id/webview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </ScrollView>
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
