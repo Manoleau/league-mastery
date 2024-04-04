@@ -163,6 +163,8 @@ class AcceuilRecherche : AppCompatActivity() {
             Cache.actualSummoner = null
             loadingBar.setTitle("Recherche en cours...")
             loadingBar.setMessage("Veillez patienter")
+
+            loadingBar.setCancelable(false)
             loadingBar.show()
             val riotAccInText = riotAccText.text
             val tmp = riotAccInText.split("#")
