@@ -5,7 +5,6 @@ data class Summoner(
     val accountId: String,
     val puuid: String,
     val server: String,
-    val summonerName: String,
     val riotName: String,
     val tag: String,
     val profileIconId: Int,
